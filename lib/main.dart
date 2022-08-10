@@ -3,9 +3,11 @@ import 'package:handyman/Onboarding/goodjob.dart';
 import 'package:handyman/Onboarding/login.dart';
 import 'package:handyman/Onboarding/signup.dart';
 import 'package:handyman/Onboarding/verification.dart';
-// import 'package:handyman/Screens/home.dart';
-// import 'package:handyman/Screens/joblist.dart';
-// import 'package:handyman/Screens/navigation.dart';
+import 'package:handyman/CustomerScreens/PostJob.dart';
+import 'package:handyman/CustomerScreens/notifications.dart';
+import 'package:handyman/CustomerScreens/home.dart';
+import 'package:handyman/CustomerScreens/joblist.dart';
+import 'package:handyman/CustomerScreens/navigation.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,9 +30,11 @@ class MyApp extends StatelessWidget {
         SignupScreen.routeName: (ctx) => SignupScreen(),
         Verifyscreen.routeName: (ctx) => Verifyscreen(),
         Goodjobscreen.routeName: (ctx) => Goodjobscreen(),
-        // Navigationscreen.routeName: (ctx) => Navigationscreen(),
-        // Homescreen.routeName: (ctx) => Homescreen(),
-        // JoblistScreen.routeName: (ctx) => JoblistScreen(),
+        Navigationscreen.routeName: (ctx) => Navigationscreen(),
+        Homescreen.routeName: (ctx) => Homescreen(),
+        JoblistScreen.routeName: (ctx) => JoblistScreen(),
+        PostjobScreen.routeName: (ctx) => PostjobScreen(),
+        NotificationScreen.routeName: (ctx) => NotificationScreen()
       },
     );
   }
