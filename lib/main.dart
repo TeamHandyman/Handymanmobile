@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    String name;
     return MaterialApp(
       title: 'Handyman',
       theme: ThemeData(
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         Verifyscreen.routeName: (ctx) => Verifyscreen(),
         Goodjobscreen.routeName: (ctx) => Goodjobscreen(),
         Navigationscreen.routeName: (ctx) => Navigationscreen(),
-        Homescreen.routeName: (ctx) => Homescreen(),
+        Homescreen.routeName: (ctx) => Homescreen(name),
         JoblistScreen.routeName: (ctx) => JoblistScreen(),
         PostjobScreen.routeName: (ctx) => PostjobScreen(),
         NotificationScreen.routeName: (ctx) => NotificationScreen()

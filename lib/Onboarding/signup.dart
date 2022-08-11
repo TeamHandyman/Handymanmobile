@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:handyman/Onboarding/login.dart';
 import 'package:handyman/Onboarding/verification.dart';
+import 'package:handyman/services/authservice.dart';
 
 class SignupScreen extends StatefulWidget {
   static const routeName = '/signup';
@@ -9,6 +11,10 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  var fName, lName, email, phone, password, confPassword;
+  bool emailValid;
+  bool pwdTapped = false;
+
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -79,7 +85,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 Icons.person,
                                 color: Theme.of(context).buttonColor,
                               ),
-                              labelText: 'Customer',
+                              labelText: 'First Name',
                               labelStyle: TextStyle(color: Colors.white),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
@@ -91,7 +97,40 @@ class _SignupScreenState extends State<SignupScreen> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                             ),
-                            keyboardType: TextInputType.emailAddress,
+                            keyboardType: TextInputType.name,
+                            onChanged: (val) {
+                              fName = val;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 15.0, right: 15, top: 5, bottom: 5),
+                          child: TextField(
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.person,
+                                color: Theme.of(context).buttonColor,
+                              ),
+                              labelText: 'Last Name',
+                              labelStyle: TextStyle(color: Colors.white),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).shadowColor),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                            keyboardType: TextInputType.name,
+                            onChanged: (val) {
+                              lName = val;
+                            },
                           ),
                         ),
                         Padding(
@@ -118,7 +157,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                 borderRadius: BorderRadius.circular(5),
                               ),
                             ),
-                            keyboardType: TextInputType.text,
+                            keyboardType: TextInputType.phone,
+                            onChanged: (val) {
+                              phone = val;
+                            },
                           ),
                         ),
                         Padding(
@@ -146,6 +188,12 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                             ),
                             keyboardType: TextInputType.emailAddress,
+                            onChanged: (val) {
+                              email = val;
+                              emailValid = RegExp(
+                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                  .hasMatch(email);
+                            },
                           ),
                         ),
                         Padding(
@@ -173,12 +221,29 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                             ),
                             obscureText: true,
+                            onChanged: (val) {
+                              password = val;
+                            },
+                            onTap: () {
+                              pwdTapped = true;
+                            },
                           ),
+                        ),
+                        Visibility(
+                          child: Text(
+                            'Passwords must be at least 8 characters long and include numbers and symbols',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 15, color: Colors.white),
+                          ),
+                          visible: pwdTapped,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(
                               left: 15.0, right: 15, top: 5, bottom: 5),
                           child: TextField(
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
                             decoration: InputDecoration(
                               prefixIcon: Icon(
                                 Icons.lock_sharp,
@@ -197,6 +262,9 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                             ),
                             obscureText: true,
+                            onChanged: (val) {
+                              confPassword = val;
+                            },
                           ),
                         ),
                       ],
@@ -209,8 +277,76 @@ class _SignupScreenState extends State<SignupScreen> {
                     right: 15,
                   ),
                   child: GestureDetector(
-                    onTap: () =>
-                        Navigator.of(context).pushNamed(Verifyscreen.routeName),
+                    onTap: () {
+                      if (fName == "" ||
+                          phone == "" ||
+                          email == "" ||
+                          password == "" ||
+                          confPassword == "") {
+                        Fluttertoast.showToast(
+                            msg: 'Please enter the required fields',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else if (!emailValid) {
+                        Fluttertoast.showToast(
+                            msg: 'Invalid Email',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else if (password != confPassword) {
+                        Fluttertoast.showToast(
+                            msg: 'Passwords do not match',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else if (!RegExp(
+                              r"^(?=.*[a-zA-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}")
+                          .hasMatch(password)) {
+                        Fluttertoast.showToast(
+                            msg: 'Enter a valid password',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else if (phone.length != 10) {
+                        Fluttertoast.showToast(
+                            msg: 'Invalid Phone No.',
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else {
+                        AuthService()
+                            .addUserCustomer(
+                                fName, lName, phone, email, password)
+                            .then((val) {
+                          Navigator.of(context)
+                              .pushNamed(LoginScreen.routeName);
+                          Fluttertoast.showToast(
+                              msg: 'Successfully Registered',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Theme.of(context).buttonColor,
+                              textColor: Theme.of(context).shadowColor,
+                              fontSize: 16.0);
+                        });
+                      }
+                    },
                     child: Container(
                       height: 46,
                       width: width,

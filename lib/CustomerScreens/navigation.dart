@@ -15,7 +15,7 @@ class Navigationscreen extends StatefulWidget {
 
 class _NavigationscreenState extends State<Navigationscreen> {
   List<Widget> _pages = [
-    Homescreen(),
+    Homescreen(name),
     JoblistScreen(),
     PostjobScreen(),
     NotificationScreen(),
@@ -25,6 +25,8 @@ class _NavigationscreenState extends State<Navigationscreen> {
   int _selectedPageIndex = 0;
   final controller = PageController(initialPage: 0);
   int currentPage = 0;
+
+  static String name;
 
   void _selectPage(int index) {
     setState(() {
@@ -54,7 +56,6 @@ class _NavigationscreenState extends State<Navigationscreen> {
                 // color: Colors.white,
                 size: 22,
               ),
-              title: Text('Home'),
               activeIcon: Icon(
                 Icons.home,
                 size: 22,
@@ -67,7 +68,6 @@ class _NavigationscreenState extends State<Navigationscreen> {
               color: Colors.white,
               size: 25,
             ),
-            title: Text('Schedule'),
             activeIcon: Icon(
               Icons.schedule,
               color: Theme.of(context).buttonColor,
@@ -81,7 +81,6 @@ class _NavigationscreenState extends State<Navigationscreen> {
                 color: Colors.white,
                 size: 22,
               ),
-              title: Text('Post'),
               activeIcon: Icon(
                 Icons.add_box_rounded,
                 color: Theme.of(context).buttonColor,
@@ -94,7 +93,6 @@ class _NavigationscreenState extends State<Navigationscreen> {
                 color: Colors.white,
                 size: 22,
               ),
-              title: Text('Notifications'),
               activeIcon: Icon(
                 Icons.notifications,
                 color: Theme.of(context).buttonColor,
@@ -107,7 +105,6 @@ class _NavigationscreenState extends State<Navigationscreen> {
                 color: Colors.white,
                 size: 22,
               ),
-              title: Text('Profile'),
               activeIcon: Icon(
                 Icons.person,
                 color: Theme.of(context).buttonColor,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:handyman/CustomerScreens/home.dart';
 import 'package:handyman/Onboarding/signup.dart';
+import 'package:handyman/services/authservice.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/loginscreen';
@@ -9,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  var email, password, token;
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -62,6 +66,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 keyboardType: TextInputType.emailAddress,
+                onChanged: (val) {
+                  email = val;
+                },
               ),
             ),
             Padding(
@@ -86,6 +93,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 obscureText: true,
+                onChanged: (val) {
+                  password = val;
+                },
               ),
             ),
             Row(
@@ -109,7 +119,16 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.only(
                   top: 3, left: 15, right: 15, bottom: 10),
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  AuthService().loginCustomer(email, password).then((val) {
+                    if (val.data['success']) {
+                      AuthService().getName(token).then((val) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => Homescreen(val.data['msg'])));
+                      });
+                    }
+                  });
+                },
                 child: Container(
                   height: 46,
                   width: width,

@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 
 class Homescreen extends StatefulWidget {
   static const routeName = '/homescreen';
+  String name;
+  Homescreen(this.name);
 
   @override
-  State<Homescreen> createState() => _HomescreenState();
+  State<Homescreen> createState() {
+    return _HomescreenState(this.name);
+  }
 }
 
 class _HomescreenState extends State<Homescreen> {
+  String name;
+
+  _HomescreenState(this.name);
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -39,7 +47,7 @@ class _HomescreenState extends State<Homescreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    'Hello there',
+                    name + ',',
                     style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
