@@ -22,17 +22,71 @@ class AuthService {
     }
   }
 
-  addUserCustomer(fName, lName, phone, email, password) async {
+  checkEmailAvailability(email) async {
+    try {
+      return await dio.post(
+          'https://projecthandyman.herokuapp.com/checkEmailAvailability',
+          data: {"email": email});
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  checkPhoneAvailability(phone) async {
+    try {
+      return await dio.post(
+          'https://projecthandyman.herokuapp.com/checkPhoneAvailability',
+          data: {"phone": phone});
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  addUserCustomer(data) async {
     try {
       return await dio.post('https://projecthandyman.herokuapp.com/addCustomer',
           data: {
-            "fName": fName,
-            "lName": lName,
-            "phone": phone,
-            "email": email,
-            "password": password
+            "fName": data[0],
+            "lName": data[1],
+            "phone": data[2],
+            "email": data[3],
+            "password": data[4],
+            "gender": data[5],
+            "district": data[6],
           },
           options: Options(contentType: Headers.formUrlEncodedContentType));
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  uploadPropic(path, name) async {
+    try {
+      return await dio.post(
+        'https://projecthandyman.herokuapp.com/uploadPropic',
+        data: {
+          "path": path,
+          "name": name,
+        },
+      );
     } on DioError catch (e) {
       Fluttertoast.showToast(
           msg: e.response.data['msg'],
@@ -48,6 +102,21 @@ class AuthService {
     try {
       dio.options.headers['Authorization'] = 'Bearer $token';
       return await dio.get('https://projecthandyman.herokuapp.com/getinfo');
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  getPropic(email) async {
+    try {
+      return await dio
+          .get('https://projecthandyman.herokuapp.com/getPropic?email=$email');
     } on DioError catch (e) {
       Fluttertoast.showToast(
           msg: e.response.data['msg'],

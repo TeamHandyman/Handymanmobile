@@ -122,9 +122,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: () {
                   AuthService().loginCustomer(email, password).then((val) {
                     if (val.data['success']) {
+                      token = val.data['token'];
                       AuthService().getName(token).then((val) {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => Homescreen(val.data['msg'])));
+                        if (val.data['success']) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  Homescreen(val.data['msg'])));
+                        }
                       });
                     }
                   });

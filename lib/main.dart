@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         Homescreen.routeName: (ctx) => Homescreen(name),
         JoblistScreen.routeName: (ctx) => JoblistScreen(),
         PostjobScreen.routeName: (ctx) => PostjobScreen(),
-        NotificationScreen.routeName: (ctx) => NotificationScreen()
+        NotificationScreen.routeName: (ctx) => NotificationScreen(),
       },
     );
   }

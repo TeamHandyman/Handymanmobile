@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:handyman/Onboarding/goodjob.dart';
 import 'package:handyman/Onboarding/login.dart';
 import 'package:handyman/Onboarding/verification.dart';
 import 'package:handyman/services/authservice.dart';
@@ -14,6 +15,8 @@ class _SignupScreenState extends State<SignupScreen> {
   var fName, lName, email, phone, password, confPassword;
   bool emailValid;
   bool pwdTapped = false;
+  bool emailAvailable = false;
+  bool phoneAvailable = false;
 
   final _formKey = GlobalKey<FormState>();
   @override
@@ -278,74 +281,108 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   child: GestureDetector(
                     onTap: () {
-                      if (fName == "" ||
-                          phone == "" ||
-                          email == "" ||
-                          password == "" ||
-                          confPassword == "") {
-                        Fluttertoast.showToast(
-                            msg: 'Please enter the required fields',
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0);
-                      } else if (!emailValid) {
-                        Fluttertoast.showToast(
-                            msg: 'Invalid Email',
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0);
-                      } else if (password != confPassword) {
-                        Fluttertoast.showToast(
-                            msg: 'Passwords do not match',
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0);
-                      } else if (!RegExp(
-                              r"^(?=.*[a-zA-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}")
-                          .hasMatch(password)) {
-                        Fluttertoast.showToast(
-                            msg: 'Enter a valid password',
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0);
-                      } else if (phone.length != 10) {
-                        Fluttertoast.showToast(
-                            msg: 'Invalid Phone No.',
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0);
-                      } else {
-                        AuthService()
-                            .addUserCustomer(
-                                fName, lName, phone, email, password)
-                            .then((val) {
-                          Navigator.of(context)
-                              .pushNamed(LoginScreen.routeName);
-                          Fluttertoast.showToast(
-                              msg: 'Successfully Registered',
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Theme.of(context).buttonColor,
-                              textColor: Theme.of(context).shadowColor,
-                              fontSize: 16.0);
-                        });
-                      }
+                      // AuthService().checkEmailAvailability(email).then((val) {
+                      //   if (val.data['success']) {
+                      //     emailAvailable = true;
+                      //   }
+                      // });
+                      // AuthService().checkPhoneAvailability(phone).then((val) {
+                      //   if (val.data['success']) {
+                      //     phoneAvailable = true;
+                      //   }
+                      // });
+                      // if (fName == "" ||
+                      //     phone == "" ||
+                      //     email == "" ||
+                      //     password == "" ||
+                      //     confPassword == "") {
+                      //   Fluttertoast.showToast(
+                      //       msg: 'Please enter the required fields',
+                      //       toastLength: Toast.LENGTH_SHORT,
+                      //       gravity: ToastGravity.BOTTOM,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Colors.red,
+                      //       textColor: Colors.white,
+                      //       fontSize: 16.0);
+                      // } else if (!emailValid) {
+                      //   Fluttertoast.showToast(
+                      //       msg: 'Invalid Email',
+                      //       toastLength: Toast.LENGTH_SHORT,
+                      //       gravity: ToastGravity.BOTTOM,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Colors.red,
+                      //       textColor: Colors.white,
+                      //       fontSize: 16.0);
+                      // } else if (password != confPassword) {
+                      //   Fluttertoast.showToast(
+                      //       msg: 'Passwords do not match',
+                      //       toastLength: Toast.LENGTH_SHORT,
+                      //       gravity: ToastGravity.BOTTOM,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Colors.red,
+                      //       textColor: Colors.white,
+                      //       fontSize: 16.0);
+                      // } else if (!RegExp(
+                      //         r"^(?=.*[a-zA-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}")
+                      //     .hasMatch(password)) {
+                      //   Fluttertoast.showToast(
+                      //       msg: 'Enter a valid password',
+                      //       toastLength: Toast.LENGTH_SHORT,
+                      //       gravity: ToastGravity.BOTTOM,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Colors.red,
+                      //       textColor: Colors.white,
+                      //       fontSize: 16.0);
+                      // } else if (phone.length != 10) {
+                      //   Fluttertoast.showToast(
+                      //       msg: 'Invalid Phone No.',
+                      //       toastLength: Toast.LENGTH_SHORT,
+                      //       gravity: ToastGravity.BOTTOM,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Colors.red,
+                      //       textColor: Colors.white,
+                      //       fontSize: 16.0);
+                      // } else if (!emailAvailable) {
+                      //   Fluttertoast.showToast(
+                      //       msg: 'This e-mail has already registered',
+                      //       toastLength: Toast.LENGTH_SHORT,
+                      //       gravity: ToastGravity.BOTTOM,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Colors.red,
+                      //       textColor: Colors.white,
+                      //       fontSize: 16.0);
+                      // } else if (!phoneAvailable) {
+                      //   Fluttertoast.showToast(
+                      //       msg: 'This phone no. has already registered',
+                      //       toastLength: Toast.LENGTH_SHORT,
+                      //       gravity: ToastGravity.BOTTOM,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Colors.red,
+                      //       textColor: Colors.white,
+                      //       fontSize: 16.0);
+                      // } else {
+                      List data = [fName, lName, phone, email, password];
+                      // AuthService()
+                      //     .addUserCustomer(fName, lName, phone, email, password)
+                      //     .then((val) {
+                      //   // Navigator.of(context)
+                      //   //     .pushNamed(Goodjobscreen.routeName);
+                      //   Navigator.of(context).push(MaterialPageRoute(
+                      //       builder: (context) => Goodjobscreen(),
+                      //       settings: RouteSettings(arguments: data)));
+                      //   Fluttertoast.showToast(
+                      //       msg: 'Successfully Registered',
+                      //       toastLength: Toast.LENGTH_SHORT,
+                      //       gravity: ToastGravity.BOTTOM,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Theme.of(context).buttonColor,
+                      //       textColor: Theme.of(context).shadowColor,
+                      //       fontSize: 16.0);
+                      // });
+                      // }
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => Goodjobscreen(),
+                          settings: RouteSettings(arguments: data)));
                     },
                     child: Container(
                       height: 46,
