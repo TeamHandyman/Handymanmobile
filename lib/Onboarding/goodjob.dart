@@ -120,8 +120,7 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
   // }
   String propicUrl;
   var pickedImage;
-  Future<CloudinaryResponse> selectFile() async {
-    CloudinaryResponse response;
+  void selectFile() async {
     final picker = ImagePicker();
     try {
       pickedImage = await picker.getImage(source: ImageSource.gallery);
@@ -132,23 +131,27 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
           print('No image selected.');
         }
       });
-      if (pickedImage != null) {
-        if (pickedImage.path != null) {
-          response = await uploadFileOnCloudinary(
-            filePath: pickedImage.path,
-            resourceType: CloudinaryResourceType.Auto,
-          );
-          propicUrl = response.url;
-        }
-      }
     } on PlatformException catch (e, s) {
     } on Exception catch (e, s) {}
+  }
+
+  Future<CloudinaryResponse> prepareUpload() async {
+    CloudinaryResponse response;
+    if (pickedImage != null) {
+      if (pickedImage.path != null) {
+        response = await uploadFileOnCloudinary(
+          filePath: pickedImage.path,
+          resourceType: CloudinaryResourceType.Auto,
+        );
+        propicUrl = response.url;
+        uploadFileDataOnMongo(data[3], propicUrl);
+      }
+    }
     return response;
   }
 
   Future<CloudinaryResponse> uploadFileOnCloudinary(
       {String filePath, CloudinaryResourceType resourceType}) async {
-    String result;
     CloudinaryResponse response;
     try {
       var cloudinary =
@@ -161,6 +164,14 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
       print(e.request);
     }
     return response;
+  }
+
+  void uploadFileDataOnMongo(email, url) {
+    AuthService().uploadPropic(email, url).then((val) {
+      if (val.data['success']) {
+        print('Successfully Uploaded');
+      }
+    });
   }
 
   // bool isloaded = false;
@@ -375,22 +386,26 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
                     right: 15,
                   ),
                   child: GestureDetector(
-                    onTap: () => {
-                      data.addAll([valueChooseGen, valueChooseDis]),
+                    onTap: () {
+                      var result = prepareUpload();
+                      if (result != null) {}
+
+                      data.addAll([valueChooseGen, valueChooseDis]);
                       AuthService().addUserCustomer(data).then((val) {
-                        Navigator.of(context).pushNamed(LoginScreen.routeName);
-                        // Navigator.of(context).push(MaterialPageRoute(
-                        //     builder: (context) => Goodjobscreen(),
-                        //     settings: RouteSettings(arguments: data)));
-                        Fluttertoast.showToast(
-                            msg: 'Successfully Registered',
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Theme.of(context).buttonColor,
-                            textColor: Theme.of(context).shadowColor,
-                            fontSize: 16.0);
-                      })
+                        if (val.data['success']) {
+                          Navigator.of(context)
+                              .pushNamed(LoginScreen.routeName);
+
+                          Fluttertoast.showToast(
+                              msg: 'Successfully Registered',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Theme.of(context).buttonColor,
+                              textColor: Theme.of(context).shadowColor,
+                              fontSize: 16.0);
+                        }
+                      });
                     },
                     child: Container(
                       height: 46,
