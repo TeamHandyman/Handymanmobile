@@ -78,10 +78,52 @@ class AuthService {
     }
   }
 
+  postJobCustomer(data) async {
+    try {
+      return await dio.post(
+          'https://projecthandyman.herokuapp.com/postJobCustomer',
+          data: {
+            "title": data[0],
+            "workerType": data[1],
+            "description": data[2],
+            "date": data[3],
+          },
+          options: Options(contentType: Headers.formUrlEncodedContentType));
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
   uploadPropic(email, url) async {
     try {
       return await dio.post(
         'https://projecthandyman.herokuapp.com/uploadProPic',
+        data: {
+          "email": email,
+          "url": url,
+        },
+      );
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  uploadCustJobImage(email, url) async {
+    try {
+      return await dio.post(
+        'https://projecthandyman.herokuapp.com/uploadCustJobImage',
         data: {
           "email": email,
           "url": url,

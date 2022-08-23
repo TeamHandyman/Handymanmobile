@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/workerportfolio.dart';
 
 class NotificationScreen extends StatefulWidget {
   static const routeName = '/notificationscreen';
@@ -12,6 +13,57 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    Widget notificationCard(BuildContext context, String text, Color color) {
+      return GestureDetector(
+        onTap: () => Navigator.of(context).pushNamed(WorkerPortfolio.routeName),
+        child: Container(
+          height: 70,
+          width: width,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.black38,
+          ),
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  height: 60,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: color,
+                  ),
+                  child: Center(
+                    child: Icon(Icons.notifications),
+                  ),
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 5, top: 10),
+                    child: Text(
+                      text,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 5, top: 5),
+                    child: Text(
+                      'This is a dummy notification',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -25,7 +77,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+          IconButton(icon: Icon(Icons.chat_bubble), onPressed: () {}),
         ],
       ),
       backgroundColor: Theme.of(context).backgroundColor,
@@ -48,48 +100,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
               ],
             ),
-            Container(
-              height: 70,
-              width: width,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.black38,
-              ),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      height: 60,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5, top: 10),
-                        child: Text(
-                          'Notification',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5, top: 5),
-                        child: Text(
-                          'This is a sample notification',
-                          style: TextStyle(color: Colors.white54),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            notificationCard(context, 'Job accepted', Colors.amber),
+            notificationCard(
+                context, 'Payment pending', Theme.of(context).buttonColor),
+            notificationCard(context, 'New job request', Colors.green[600]),
           ],
         ),
       ),

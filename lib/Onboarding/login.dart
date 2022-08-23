@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
               width: width,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/Handyman.png'),
+                  image: AssetImage('assets/images/HandymanMobile.png'),
                   fit: BoxFit.fill,
                 ),
               ),
