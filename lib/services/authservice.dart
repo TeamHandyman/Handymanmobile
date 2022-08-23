@@ -9,7 +9,7 @@ class AuthService {
     try {
       return await dio.post(
           'https://projecthandyman.herokuapp.com/loginCustomer',
-          data: {"email": email, "password": password},
+          data: {"email": email, "password": password, "userType": "customer"},
           options: Options(contentType: Headers.formUrlEncodedContentType));
     } on DioError catch (e) {
       Fluttertoast.showToast(
@@ -58,11 +58,11 @@ class AuthService {
     try {
       return await dio.post('https://projecthandyman.herokuapp.com/addCustomer',
           data: {
-            "fName": data[0],
-            "lName": data[1],
-            "phone": data[2],
-            "email": data[3],
-            "password": data[4],
+            "fName": data[3],
+            "lName": data[4],
+            "phone": data[0],
+            "email": data[1],
+            "password": data[2],
             "gender": data[5],
             "district": data[6],
           },
@@ -78,13 +78,13 @@ class AuthService {
     }
   }
 
-  uploadPropic(path, name) async {
+  uploadPropic(email, url) async {
     try {
       return await dio.post(
-        'https://projecthandyman.herokuapp.com/uploadPropic',
+        'https://projecthandyman.herokuapp.com/uploadProPic',
         data: {
-          "path": path,
-          "name": name,
+          "email": email,
+          "url": url,
         },
       );
     } on DioError catch (e) {
@@ -113,18 +113,18 @@ class AuthService {
     }
   }
 
-  getPropic(email) async {
-    try {
-      return await dio
-          .get('https://projecthandyman.herokuapp.com/getPropic?email=$email');
-    } on DioError catch (e) {
-      Fluttertoast.showToast(
-          msg: e.response.data['msg'],
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
-    }
-  }
+  // getPropic(email) async {
+  //   try {
+  //     return await dio
+  //         .get('https://projecthandyman.herokuapp.com/getPropic?email=$email');
+  //   } on DioError catch (e) {
+  //     Fluttertoast.showToast(
+  //         msg: e.response.data['msg'],
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.BOTTOM,
+  //         backgroundColor: Colors.red,
+  //         textColor: Colors.white,
+  //         fontSize: 16.0);
+  //   }
+  // }
 }

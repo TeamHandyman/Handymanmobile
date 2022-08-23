@@ -4,6 +4,8 @@ import 'package:handyman/Onboarding/goodjob.dart';
 import 'package:handyman/Onboarding/login.dart';
 import 'package:handyman/Onboarding/verification.dart';
 import 'package:handyman/services/authservice.dart';
+import 'package:progress_indicator_button/button_stagger_animation.dart';
+import 'package:progress_indicator_button/progress_button.dart';
 
 class SignupScreen extends StatefulWidget {
   static const routeName = '/signup';
@@ -12,13 +14,33 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  var fName, lName, email, phone, password, confPassword;
+  var email, phone, password, confPassword;
   bool emailValid;
   bool pwdTapped = false;
   bool emailAvailable = false;
   bool phoneAvailable = false;
+  bool loading = false;
 
   final _formKey = GlobalKey<FormState>();
+
+  void httpJob(AnimationController controller) async {
+    controller.forward();
+    await AuthService().checkEmailAvailability(email).then((val) {
+      setState(() {
+        loading = true;
+      });
+      if (val.data['success']) {
+        emailAvailable = true;
+      }
+    });
+    await AuthService().checkPhoneAvailability(phone).then((val) {
+      if (val.data['success']) {
+        phoneAvailable = true;
+      }
+    });
+    controller.reset();
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -76,66 +98,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: SingleChildScrollView(
                         child: Column(
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 15.0, right: 15, top: 5, bottom: 5),
-                          child: TextField(
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                Icons.person,
-                                color: Theme.of(context).buttonColor,
-                              ),
-                              labelText: 'First Name',
-                              labelStyle: TextStyle(color: Colors.white),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).shadowColor),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                            keyboardType: TextInputType.name,
-                            onChanged: (val) {
-                              fName = val;
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 15.0, right: 15, top: 5, bottom: 5),
-                          child: TextField(
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                Icons.person,
-                                color: Theme.of(context).buttonColor,
-                              ),
-                              labelText: 'Last Name',
-                              labelStyle: TextStyle(color: Colors.white),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).shadowColor),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                            keyboardType: TextInputType.name,
-                            onChanged: (val) {
-                              lName = val;
-                            },
-                          ),
-                        ),
                         Padding(
                           padding: const EdgeInsets.only(
                               left: 15.0, right: 15, top: 5, bottom: 5),
@@ -280,124 +242,139 @@ class _SignupScreenState extends State<SignupScreen> {
                     right: 15,
                   ),
                   child: GestureDetector(
-                    onTap: () {
-                      // AuthService().checkEmailAvailability(email).then((val) {
-                      //   if (val.data['success']) {
-                      //     emailAvailable = true;
-                      //   }
-                      // });
-                      // AuthService().checkPhoneAvailability(phone).then((val) {
-                      //   if (val.data['success']) {
-                      //     phoneAvailable = true;
-                      //   }
-                      // });
-                      // if (fName == "" ||
-                      //     phone == "" ||
-                      //     email == "" ||
-                      //     password == "" ||
-                      //     confPassword == "") {
-                      //   Fluttertoast.showToast(
-                      //       msg: 'Please enter the required fields',
-                      //       toastLength: Toast.LENGTH_SHORT,
-                      //       gravity: ToastGravity.BOTTOM,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Colors.red,
-                      //       textColor: Colors.white,
-                      //       fontSize: 16.0);
-                      // } else if (!emailValid) {
-                      //   Fluttertoast.showToast(
-                      //       msg: 'Invalid Email',
-                      //       toastLength: Toast.LENGTH_SHORT,
-                      //       gravity: ToastGravity.BOTTOM,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Colors.red,
-                      //       textColor: Colors.white,
-                      //       fontSize: 16.0);
-                      // } else if (password != confPassword) {
-                      //   Fluttertoast.showToast(
-                      //       msg: 'Passwords do not match',
-                      //       toastLength: Toast.LENGTH_SHORT,
-                      //       gravity: ToastGravity.BOTTOM,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Colors.red,
-                      //       textColor: Colors.white,
-                      //       fontSize: 16.0);
-                      // } else if (!RegExp(
-                      //         r"^(?=.*[a-zA-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}")
-                      //     .hasMatch(password)) {
-                      //   Fluttertoast.showToast(
-                      //       msg: 'Enter a valid password',
-                      //       toastLength: Toast.LENGTH_SHORT,
-                      //       gravity: ToastGravity.BOTTOM,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Colors.red,
-                      //       textColor: Colors.white,
-                      //       fontSize: 16.0);
-                      // } else if (phone.length != 10) {
-                      //   Fluttertoast.showToast(
-                      //       msg: 'Invalid Phone No.',
-                      //       toastLength: Toast.LENGTH_SHORT,
-                      //       gravity: ToastGravity.BOTTOM,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Colors.red,
-                      //       textColor: Colors.white,
-                      //       fontSize: 16.0);
-                      // } else if (!emailAvailable) {
-                      //   Fluttertoast.showToast(
-                      //       msg: 'This e-mail has already registered',
-                      //       toastLength: Toast.LENGTH_SHORT,
-                      //       gravity: ToastGravity.BOTTOM,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Colors.red,
-                      //       textColor: Colors.white,
-                      //       fontSize: 16.0);
-                      // } else if (!phoneAvailable) {
-                      //   Fluttertoast.showToast(
-                      //       msg: 'This phone no. has already registered',
-                      //       toastLength: Toast.LENGTH_SHORT,
-                      //       gravity: ToastGravity.BOTTOM,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Colors.red,
-                      //       textColor: Colors.white,
-                      //       fontSize: 16.0);
-                      // } else {
-                      List data = [fName, lName, phone, email, password];
-                      // AuthService()
-                      //     .addUserCustomer(fName, lName, phone, email, password)
-                      //     .then((val) {
-                      //   // Navigator.of(context)
-                      //   //     .pushNamed(Goodjobscreen.routeName);
-                      //   Navigator.of(context).push(MaterialPageRoute(
-                      //       builder: (context) => Goodjobscreen(),
-                      //       settings: RouteSettings(arguments: data)));
-                      //   Fluttertoast.showToast(
-                      //       msg: 'Successfully Registered',
-                      //       toastLength: Toast.LENGTH_SHORT,
-                      //       gravity: ToastGravity.BOTTOM,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Theme.of(context).buttonColor,
-                      //       textColor: Theme.of(context).shadowColor,
-                      //       fontSize: 16.0);
-                      // });
-                      // }
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => Goodjobscreen(),
-                          settings: RouteSettings(arguments: data)));
-                    },
+                    // onTap: () {
+                    //   print('object');
+                    //   // AuthService().checkEmailAvailability(email).then((val) {
+                    //   //   setState(() {
+                    //   //     loading = true;
+                    //   //   });
+                    //   //   if (val.data['success']) {
+                    //   //     emailAvailable = true;
+                    //   //   }
+                    //   //   AuthService().checkPhoneAvailability(phone).then((val) {
+                    //   //     if (val.data['success']) {
+                    //   //       phoneAvailable = true;
+                    //   //     }
+                    //   //   });
+                    //   //   setState(() {
+                    //   //     loading = false;
+                    //   //   });
+                    //   // });
+                    //   // if (loading) return loadingWidget(context);
+
+                    //   //  else {
+
+                    //   // AuthService()
+                    //   //     .addUserCustomer(fName, lName, phone, email, password)
+                    //   //     .then((val) {
+                    //   //   // Navigator.of(context)
+                    //   //   //     .pushNamed(Goodjobscreen.routeName);
+                    //   //   Navigator.of(context).push(MaterialPageRoute(
+                    //   //       builder: (context) => Goodjobscreen(),
+                    //   //       settings: RouteSettings(arguments: data)));
+                    //   //   Fluttertoast.showToast(
+                    //   //       msg: 'Successfully Registered',
+                    //   //       toastLength: Toast.LENGTH_SHORT,
+                    //   //       gravity: ToastGravity.BOTTOM,
+                    //   //       timeInSecForIosWeb: 1,
+                    //   //       backgroundColor: Theme.of(context).buttonColor,
+                    //   //       textColor: Theme.of(context).shadowColor,
+                    //   //       fontSize: 16.0);
+                    //   // });
+
+                    //   // }
+                    // },
                     child: Container(
                       height: 46,
                       width: width,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).buttonColor,
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      child: Center(
-                        child: Text('Sign up',
-                            style: TextStyle(
-                                color: Theme.of(context).backgroundColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500)),
-                      ),
+                      child: ProgressButton(
+                          color: Theme.of(context).buttonColor,
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          child: Text('Sign up',
+                              style: TextStyle(
+                                  color: Theme.of(context).backgroundColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500)),
+                          onPressed: (AnimationController controller) async {
+                            await httpJob(controller);
+                            if (phone == null ||
+                                email == null ||
+                                password == null ||
+                                confPassword == null) {
+                              Fluttertoast.showToast(
+                                  msg: 'Please enter the required fields',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            } else if (!emailValid) {
+                              Fluttertoast.showToast(
+                                  msg: 'Invalid Email',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            } else if (password != confPassword) {
+                              Fluttertoast.showToast(
+                                  msg: 'Passwords do not match',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            } else if (!RegExp(
+                                    r"^(?=.*[a-zA-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}")
+                                .hasMatch(password)) {
+                              Fluttertoast.showToast(
+                                  msg: 'Enter a valid password',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            } else if (phone.length != 10) {
+                              Fluttertoast.showToast(
+                                  msg: 'Invalid Phone No.',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            } else if (!emailAvailable) {
+                              Fluttertoast.showToast(
+                                  msg: 'This e-mail has already registered',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            } else if (!phoneAvailable) {
+                              Fluttertoast.showToast(
+                                  msg: 'This phone no. has already registered',
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            } else {
+                              List data = [phone, email, password];
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => Goodjobscreen(),
+                                  settings: RouteSettings(arguments: data)));
+                            }
+                          }),
                     ),
                   ),
                 ),

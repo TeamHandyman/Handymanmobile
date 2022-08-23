@@ -15,7 +15,7 @@ class Navigationscreen extends StatefulWidget {
 
 class _NavigationscreenState extends State<Navigationscreen> {
   List<Widget> _pages = [
-    Homescreen(name),
+    Homescreen(),
     JoblistScreen(),
     PostjobScreen(),
     NotificationScreen(),
@@ -56,6 +56,7 @@ class _NavigationscreenState extends State<Navigationscreen> {
                 // color: Colors.white,
                 size: 22,
               ),
+              label: 'Home',
               activeIcon: Icon(
                 Icons.home,
                 size: 22,
@@ -68,6 +69,7 @@ class _NavigationscreenState extends State<Navigationscreen> {
               color: Colors.white,
               size: 25,
             ),
+            label: 'Home',
             activeIcon: Icon(
               Icons.schedule,
               color: Theme.of(context).buttonColor,
@@ -81,6 +83,7 @@ class _NavigationscreenState extends State<Navigationscreen> {
                 color: Colors.white,
                 size: 22,
               ),
+              label: 'Home',
               activeIcon: Icon(
                 Icons.add_box_rounded,
                 color: Theme.of(context).buttonColor,
@@ -93,6 +96,7 @@ class _NavigationscreenState extends State<Navigationscreen> {
                 color: Colors.white,
                 size: 22,
               ),
+              label: 'Home',
               activeIcon: Icon(
                 Icons.notifications,
                 color: Theme.of(context).buttonColor,
@@ -105,6 +109,7 @@ class _NavigationscreenState extends State<Navigationscreen> {
                 color: Colors.white,
                 size: 22,
               ),
+              label: 'Home',
               activeIcon: Icon(
                 Icons.person,
                 color: Theme.of(context).buttonColor,
