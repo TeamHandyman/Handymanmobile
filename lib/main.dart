@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         Verifyscreen.routeName: (ctx) => Verifyscreen(),
         Goodjobscreen.routeName: (ctx) => Goodjobscreen(),
         Navigationscreen.routeName: (ctx) => Navigationscreen(),
-        Homescreen.routeName: (ctx) => Homescreen(name),
+        Homescreen.routeName: (ctx) => Homescreen(),
         JoblistScreen.routeName: (ctx) => JoblistScreen(),
         PostjobScreen.routeName: (ctx) => PostjobScreen(),
         NotificationScreen.routeName: (ctx) => NotificationScreen(),

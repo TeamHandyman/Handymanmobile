@@ -18,6 +18,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:mongo_dart/mongo_dart.dart' show Db, GridFS;
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:progress_indicator_button/progress_button.dart';
 // import 'package:cloudinary_client/cloudinary_client.dart';
 // import 'package:cloudinary_client/models/CloudinaryResponse.dart';
 
@@ -28,96 +29,8 @@ class Goodjobscreen extends StatefulWidget {
 }
 
 class _GoodjobscreenState extends State<Goodjobscreen> {
-  // Uint8List propicDecoded;
-  // Image provider;
-  // Dio dio = Dio();
-  // List<dynamic> propic;
-
-  // getData() async {
-  //   // setState(() {
-  //   //    loading = true;  //make loading true to show progressindicator
-  //   // });
-
-  //   String url = "https://projecthandyman.herokuapp.com/getPropic";
-  //   //don't use "http://localhost/" use local IP or actual live URL
-
-  //   var response = await dio.get(url);
-
-  //   propicDecoded = response.data['image']['data'];
-  //   provider = Image.memory(propicDecoded);
-  //   // print(provider);
-  //   // propicDecoded = Base64Decoder().convert(response.data['image']['data']);
-
-  //   // propics = response.data; //get JSON decoded data from response
-  //   // _allUsers= apidata;
-  //   if (response.statusCode == 200) {
-  //     //fetch successful
-  //     // if(apidata["error"]){ //Check if there is error given on JSON
-  //     //     error = true;
-  //     //     errmsg  = apidata["msg"]; //error message from JSON
-  //     // }
-  //   } else {
-  //     // error = true;
-  //     // errmsg = "Error while fetching data.";
-  //   }
-
-  //   // loading = false;
-  //   setState(() {}); //refresh UI
-  // }
-
-  // @override
-  // void initState() {
-  //   getData();
-  //   // print(propics); //fetching data
-  //   super.initState();
-  // }
-
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     Response json = AuthService().getPropic('abc@gmail.com');
-  //     propics = json.data;
-  //     // if (val.data['success']) {
-  //     // var js = jsonEncode(json);
-  //     // Map<String, dynamic> userMap = jsonDecode(json);
-  //     // var user = User.fromJson(userMap);
-  //     print(propics);
-  //     // String propic = val.data['msg'];
-  //     // print(propic);
-  //     // propicDecoded = Base64Decoder().convert(propic);
-  //     // }
-  //   });
-  // }
-
   File _image;
-
-  // Future<void> getImage() async {
-  //   final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
-  //   setState(() {
-  //     if (pickedFile != null) {
-  //       _image = File(pickedFile.path);
-  //     } else {
-  //       print('No image selected.');
-  //     }
-  //   });
-  // }
-
-  // void upload(File file) async {
-  //   String fileName = file.path.split('/').last;
-  //   // final bytes = await file.readAsBytes();
-  //   // String encoded = base64Encode(bytes);
-
-  //   AuthService()
-  //       .uploadPropic(
-  //           "C:/Users/Deelaka Pushpakumara/Pictures/Screenshots/Far Cry 5 Screenshot 2020.10.31 - 23.17.47.10.png",
-  //           'fileName')
-  //       .then((val) {
-  //     if (val.data['success']) {
-  //       print('success');
-  //     }
-  //   });
-  // }
+  var fName, lName;
   String propicUrl;
   var pickedImage;
   void selectFile() async {
@@ -144,7 +57,7 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
           resourceType: CloudinaryResourceType.Auto,
         );
         propicUrl = response.url;
-        uploadFileDataOnMongo(data[3], propicUrl);
+        uploadFileDataOnMongo(data[1], propicUrl);
       }
     }
     return response;
@@ -220,6 +133,27 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
+    void httpJob(AnimationController controller) async {
+      controller.forward();
+      await prepareUpload();
+
+      await AuthService().addUserCustomer(data).then((val) {
+        if (val.data['success']) {
+          Navigator.of(context).pushNamed(LoginScreen.routeName);
+
+          Fluttertoast.showToast(
+              msg: 'Successfully Registered',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Theme.of(context).buttonColor,
+              textColor: Theme.of(context).shadowColor,
+              fontSize: 16.0);
+        }
+      });
+      controller.reset();
+    }
+
     data = ModalRoute.of(context).settings.arguments as List;
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -271,22 +205,44 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Center(
-                    child: CircleAvatar(
-                      child: IconButton(
-                        color: Colors.white,
-                        onPressed: () {
-                          selectFile();
-                        },
-                        icon: const Icon(Icons.camera_alt, size: 30),
+                  padding: EdgeInsets.all(10.0),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          backgroundImage:
+                              _image == null ? null : FileImage(_image),
+                          radius: 50,
+                          child: _image == null
+                              ? Center(
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                    size: 40,
+                                  ),
+                                )
+                              : null,
+                        ),
                       ),
-                      backgroundColor: Colors.grey,
-                      backgroundImage: _image == null
-                          ? AssetImage('assets/images/Handyman.png')
-                          : FileImage(_image),
-                      radius: 50,
-                    ),
+                      Positioned(
+                        bottom: 5,
+                        right: 110,
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Theme.of(context).buttonColor,
+                          child: Center(
+                            child: IconButton(
+                              icon: Icon(Icons.camera_alt_rounded),
+                              color: Theme.of(context).backgroundColor,
+                              onPressed: () {
+                                selectFile();
+                              },
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 ),
                 Form(
@@ -294,6 +250,66 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
                     child: SingleChildScrollView(
                         child: Column(
                       children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 15.0, right: 15, top: 5, bottom: 5),
+                          child: TextField(
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.person_outline,
+                                color: Theme.of(context).buttonColor,
+                              ),
+                              labelText: 'First Name',
+                              labelStyle: TextStyle(color: Colors.white),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).shadowColor),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                            keyboardType: TextInputType.name,
+                            onChanged: (val) {
+                              fName = val;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 15.0, right: 15, top: 5, bottom: 5),
+                          child: TextField(
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.person,
+                                color: Theme.of(context).buttonColor,
+                              ),
+                              labelText: 'Last Name',
+                              labelStyle: TextStyle(color: Colors.white),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).shadowColor),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                            keyboardType: TextInputType.name,
+                            onChanged: (val) {
+                              lName = val;
+                            },
+                          ),
+                        ),
                         Padding(
                             padding: const EdgeInsets.only(
                                 left: 15.0, right: 15, top: 5, bottom: 5),
@@ -386,41 +402,25 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
                     right: 15,
                   ),
                   child: GestureDetector(
-                    onTap: () {
-                      var result = prepareUpload();
-                      if (result != null) {}
-
-                      data.addAll([valueChooseGen, valueChooseDis]);
-                      AuthService().addUserCustomer(data).then((val) {
-                        if (val.data['success']) {
-                          Navigator.of(context)
-                              .pushNamed(LoginScreen.routeName);
-
-                          Fluttertoast.showToast(
-                              msg: 'Successfully Registered',
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Theme.of(context).buttonColor,
-                              textColor: Theme.of(context).shadowColor,
-                              fontSize: 16.0);
-                        }
-                      });
-                    },
                     child: Container(
                       height: 46,
                       width: width,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).buttonColor,
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      child: Center(
-                        child: Text('Let\'s Go',
-                            style: TextStyle(
-                                color: Theme.of(context).backgroundColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500)),
-                      ),
+                      child: ProgressButton(
+                          color: Theme.of(context).buttonColor,
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          child: Text('Let\'s Go',
+                              style: TextStyle(
+                                  color: Theme.of(context).backgroundColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500)),
+                          onPressed: (AnimationController controller) async {
+                            data.addAll(
+                                [fName, lName, valueChooseGen, valueChooseDis]);
+                            await httpJob(controller);
+                          }),
                     ),
                   ),
                 ),

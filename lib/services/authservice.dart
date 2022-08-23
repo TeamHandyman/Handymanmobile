@@ -9,7 +9,7 @@ class AuthService {
     try {
       return await dio.post(
           'https://projecthandyman.herokuapp.com/loginCustomer',
-          data: {"email": email, "password": password},
+          data: {"email": email, "password": password, "userType": "customer"},
           options: Options(contentType: Headers.formUrlEncodedContentType));
     } on DioError catch (e) {
       Fluttertoast.showToast(
@@ -58,11 +58,11 @@ class AuthService {
     try {
       return await dio.post('https://projecthandyman.herokuapp.com/addCustomer',
           data: {
-            "fName": data[0],
-            "lName": data[1],
-            "phone": data[2],
-            "email": data[3],
-            "password": data[4],
+            "fName": data[3],
+            "lName": data[4],
+            "phone": data[0],
+            "email": data[1],
+            "password": data[2],
             "gender": data[5],
             "district": data[6],
           },
