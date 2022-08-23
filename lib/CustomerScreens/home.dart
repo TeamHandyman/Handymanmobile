@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/workerportfolio.dart';
 
 class Homescreen extends StatefulWidget {
   static const routeName = '/homescreen';
@@ -18,6 +19,145 @@ class _HomescreenState extends State<Homescreen> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
+    Widget advertisement(
+        BuildContext context, String fname, String lname, String image) {
+      return Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 15, right: 15, top: 10),
+            child: Container(
+              width: width,
+              height: 30,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.grey,
+                    radius: 20,
+                    backgroundImage: AssetImage('assets/images/services1.jpeg'),
+                    child: Center(
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 15,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: 5.0,
+                      right: 15,
+                    ),
+                    child: Text(
+                      fname + ' ' + lname,
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: GestureDetector(
+              onTap: () =>
+                  Navigator.of(context).pushNamed(WorkerPortfolio.routeName),
+              child: Container(
+                width: width,
+                height: height * 0.63,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 250,
+                      width: width,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: Theme.of(context).shadowColor,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5.0),
+                        child: Image.asset(
+                          'assets/images/${image}.jpg',
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'This is a dummy description of the advertisement i\'am going to share. I can edit the text and change advertisement cover',
+                        style: TextStyle(color: Colors.black),
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Jobs completed: 10',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.star,
+                              color: Theme.of(context).buttonColor,
+                              size: 15,
+                            ),
+                            Text(
+                              '4.7',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    GestureDetector(
+                      child: Container(
+                        height: 40,
+                        width: width,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).buttonColor,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(0),
+                              topRight: Radius.circular(0),
+                              bottomLeft: Radius.circular(5),
+                              bottomRight: Radius.circular(5)),
+                        ),
+                        child: Center(
+                          child: Text('View Portfolio',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).backgroundColor,
+                                fontSize: 14,
+                              )),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -124,58 +264,9 @@ class _HomescreenState extends State<Homescreen> {
                 )
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Card(
-                color: Theme.of(context).shadowColor,
-                child: Container(
-                  height: 200,
-                  width: width,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Card(
-                color: Theme.of(context).shadowColor,
-                child: Container(
-                  height: 200,
-                  width: width,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Card(
-                color: Theme.of(context).shadowColor,
-                child: Container(
-                  height: 200,
-                  width: width,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Card(
-                color: Theme.of(context).shadowColor,
-                child: Container(
-                  height: 200,
-                  width: width,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-            ),
+            advertisement(context, 'Nimal', 'Siripala', 'ad'),
+            advertisement(context, 'Kamal', 'Gunarathne', 'ad1'),
+            advertisement(context, 'Amal', 'Perera', 'ad'),
           ],
         ),
       ),

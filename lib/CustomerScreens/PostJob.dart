@@ -1,4 +1,16 @@
+import 'dart:io';
+
+import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:flutter/material.dart';
+import 'package:date_field/date_field.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/customerPostedJobs.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:progress_indicator_button/progress_button.dart';
+
+import '../Onboarding/login.dart';
+import '../services/authservice.dart';
 
 class PostjobScreen extends StatefulWidget {
   static const routeName = '/postjobscreen';
@@ -8,9 +20,112 @@ class PostjobScreen extends StatefulWidget {
 }
 
 class _PostjobScreenState extends State<PostjobScreen> {
+  String title, jobType, desc;
+  var valueChooseWorkerType;
+  DateTime date;
+  List jobTypes = [
+    'Mason',
+    'Tile Fixer',
+    'Carpenter',
+    'Painter',
+    'Plumber',
+    'Electrician',
+    'Landscaping',
+    'Contractor',
+    'Equipment Reparing',
+    'Welding',
+    'A/C',
+    'Cushion Works',
+    'Cleaners',
+    'Mechanics',
+    'CCTV Fixers',
+    'Solar Panel Fixers',
+    'Curtains',
+    'Movers',
+    'Pest Control'
+  ];
+  var pickedImage;
+  String jobUrl;
+  File _image;
+
+  void selectFile() async {
+    final picker = ImagePicker();
+    try {
+      pickedImage = await picker.getImage(source: ImageSource.gallery);
+      setState(() {
+        if (pickedImage != null) {
+          _image = File(pickedImage.path);
+        } else {
+          print('No image selected.');
+        }
+      });
+    } on PlatformException catch (e, s) {
+    } on Exception catch (e, s) {}
+  }
+
+  Future<CloudinaryResponse> prepareUpload() async {
+    CloudinaryResponse response;
+    if (pickedImage != null) {
+      if (pickedImage.path != null) {
+        response = await uploadFileOnCloudinary(
+          filePath: pickedImage.path,
+          resourceType: CloudinaryResourceType.Auto,
+        );
+        jobUrl = response.url;
+        uploadFileDataOnMongo("testttt@testt.com", jobUrl);
+      }
+    }
+    return response;
+  }
+
+  Future<CloudinaryResponse> uploadFileOnCloudinary(
+      {String filePath, CloudinaryResourceType resourceType}) async {
+    CloudinaryResponse response;
+    try {
+      var cloudinary =
+          CloudinaryPublic('projecthandyman', 'p5r8psil', cache: false);
+      response = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(filePath, resourceType: resourceType),
+      );
+    } on CloudinaryException catch (e, s) {
+      print(e.message);
+      print(e.request);
+    }
+    return response;
+  }
+
+  void uploadFileDataOnMongo(email, url) {
+    AuthService().uploadCustJobImage(email, url).then((val) {
+      if (val.data['success']) {
+        print('Successfully Uploaded');
+      }
+    });
+  }
+
   final _form = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
+    void httpJob(AnimationController controller) async {
+      controller.forward();
+      List data = [title, valueChooseWorkerType, desc, date];
+      await prepareUpload();
+      await AuthService().postJobCustomer(data).then((val) {
+        if (val.data['success']) {
+          // Navigator.of(context).pushNamed(LoginScreen.routeName);
+
+          Fluttertoast.showToast(
+              msg: 'Job Posted',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Theme.of(context).buttonColor,
+              textColor: Theme.of(context).shadowColor,
+              fontSize: 16.0);
+        }
+      });
+      await controller.reset();
+    }
+
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -26,7 +141,11 @@ class _PostjobScreenState extends State<PostjobScreen> {
           ),
           centerTitle: true,
           actions: <Widget>[
-            IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+            IconButton(
+                icon: Icon(Icons.list),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(PostedJobsScreen.routeName);
+                }),
           ],
         ),
         backgroundColor: Theme.of(context).backgroundColor,
@@ -97,34 +216,45 @@ class _PostjobScreenState extends State<PostjobScreen> {
                           }
                           return null;
                         },
+                        onChanged: (val) {
+                          title = val;
+                        },
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        style: TextStyle(color: Colors.white),
+                      child: DropdownButtonFormField(
                         decoration: InputDecoration(
-                          labelText: 'Worker type',
-                          fillColor: Colors.white,
-                          labelStyle: TextStyle(color: Colors.white),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
                                 color: Theme.of(context).shadowColor),
                             borderRadius: BorderRadius.circular(5),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
+                            borderSide: const BorderSide(color: Colors.white),
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        textInputAction: TextInputAction.next,
-                        onFieldSubmitted: null,
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return 'Please enter job title';
-                          }
-                          return null;
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.white,
+                        ),
+                        hint: Text("Worker Type",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16)),
+                        dropdownColor: Theme.of(context).backgroundColor,
+                        isExpanded: true,
+                        style: TextStyle(color: Colors.white),
+                        value: valueChooseWorkerType,
+                        onChanged: (newValue) {
+                          setState(() {
+                            valueChooseWorkerType = newValue;
+                          });
                         },
+                        items: jobTypes.map((valueItem) {
+                          return DropdownMenuItem(
+                              value: valueItem, child: Text(valueItem));
+                        }).toList(),
                       ),
                     ),
                     Padding(
@@ -150,17 +280,50 @@ class _PostjobScreenState extends State<PostjobScreen> {
                           if (value.isEmpty) {
                             return 'Please enter a description';
                           }
-                          return null;
+                          return value;
+                        },
+                        onChanged: (val) {
+                          desc = val;
                         },
                       ),
                     ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: TextFormField(
+                    //     style: TextStyle(color: Colors.white),
+                    //     decoration: InputDecoration(
+                    //       labelText: 'Date',
+                    //       fillColor: Colors.white,
+                    //       labelStyle: TextStyle(color: Colors.white),
+                    //       enabledBorder: OutlineInputBorder(
+                    //         borderSide: BorderSide(
+                    //             color: Theme.of(context).shadowColor),
+                    //         borderRadius: BorderRadius.circular(5),
+                    //       ),
+                    //       focusedBorder: OutlineInputBorder(
+                    //         borderSide: BorderSide(color: Colors.white),
+                    //         borderRadius: BorderRadius.circular(5),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        style: TextStyle(color: Colors.white),
+                      child: DateTimeFormField(
+                        dateTextStyle: TextStyle(color: Colors.white),
                         decoration: InputDecoration(
+                          hintStyle: TextStyle(color: Colors.white),
+                          errorStyle: TextStyle(color: Colors.redAccent),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          suffixIcon: Icon(
+                            Icons.event_note,
+                            color: Colors.white,
+                          ),
+
                           labelText: 'Date',
-                          fillColor: Colors.white,
                           labelStyle: TextStyle(color: Colors.white),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
@@ -171,31 +334,43 @@ class _PostjobScreenState extends State<PostjobScreen> {
                             borderSide: BorderSide(color: Colors.white),
                             borderRadius: BorderRadius.circular(5),
                           ),
+                          // enabledBorder: InputBorder(borderSide: )
                         ),
+                        mode: DateTimeFieldPickerMode.date,
+                        autovalidateMode: AutovalidateMode.always,
+                        validator: (e) => (e?.day ?? 0) == 1
+                            ? 'Please not the first day'
+                            : null,
+                        onDateSelected: (DateTime value) {
+                          date = value;
+                        },
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 100,
-                        width: width,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.image,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                'Upload Image',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
+                      child: GestureDetector(
+                        onTap: () => selectFile(),
+                        child: Container(
+                          height: 100,
+                          width: width,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.white),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.image,
+                                  color: Colors.white,
+                                ),
+                                Text(
+                                  'Upload Image',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -207,16 +382,22 @@ class _PostjobScreenState extends State<PostjobScreen> {
                         height: 46,
                         width: width,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).buttonColor,
+                          // color: Theme.of(context).buttonColor,
                           borderRadius: BorderRadius.circular(5),
                         ),
-                        child: Center(
-                          child: Text('Post Job',
-                              style: TextStyle(
-                                  color: Theme.of(context).backgroundColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500)),
-                        ),
+                        child: ProgressButton(
+                            color: Theme.of(context).buttonColor,
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            child: Text('Post Job',
+                                style: TextStyle(
+                                    color: Theme.of(context).backgroundColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500)),
+                            onPressed: (AnimationController controller) async {
+                              // print(date.day);
+
+                              await httpJob(controller);
+                            }),
                       ),
                     ),
                   ],
