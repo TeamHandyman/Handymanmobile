@@ -83,10 +83,11 @@ class AuthService {
       return await dio.post(
           'https://projecthandyman.herokuapp.com/postJobCustomer',
           data: {
-            "title": data[0],
-            "workerType": data[1],
-            "description": data[2],
-            "date": data[3],
+            "email": data[0],
+            "title": data[1],
+            "workerType": data[2],
+            "description": data[3],
+            "date": data[4],
           },
           options: Options(contentType: Headers.formUrlEncodedContentType));
     } on DioError catch (e) {
@@ -140,10 +141,10 @@ class AuthService {
     }
   }
 
-  getName(token) async {
+  getEmail(token) async {
     try {
       dio.options.headers['Authorization'] = 'Bearer $token';
-      return await dio.get('https://projecthandyman.herokuapp.com/getinfo');
+      return await dio.get('https://projecthandyman.herokuapp.com/getEmail');
     } on DioError catch (e) {
       Fluttertoast.showToast(
           msg: e.response.data['msg'],

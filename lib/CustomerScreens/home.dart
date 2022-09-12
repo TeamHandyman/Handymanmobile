@@ -66,7 +66,7 @@ class _HomescreenState extends State<Homescreen> {
                   Navigator.of(context).pushNamed(WorkerPortfolio.routeName),
               child: Container(
                 width: width,
-                height: height * 0.63,
+                height: height * 0.5,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5),
