@@ -50,7 +50,7 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                   decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('assets/images/portfolio1.jpeg'),
-                      fit: BoxFit.fill,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),

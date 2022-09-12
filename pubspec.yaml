@@ -40,6 +40,7 @@ dependencies:
   cloudinary_sdk: ^2.0.0+5
   cloudinary_public: ^0.7.0
   cloudinary_client: ^0.0.9
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

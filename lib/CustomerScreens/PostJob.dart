@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/customerPostedJobs.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:progress_indicator_button/progress_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Onboarding/login.dart';
 import '../services/authservice.dart';
@@ -47,6 +48,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
   var pickedImage;
   String jobUrl;
   File _image;
+  var email;
 
   void selectFile() async {
     final picker = ImagePicker();
@@ -72,7 +74,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
           resourceType: CloudinaryResourceType.Auto,
         );
         jobUrl = response.url;
-        uploadFileDataOnMongo("testttt@testt.com", jobUrl);
+        uploadFileDataOnMongo(email, jobUrl);
       }
     }
     return response;
@@ -107,7 +109,16 @@ class _PostjobScreenState extends State<PostjobScreen> {
   Widget build(BuildContext context) {
     void httpJob(AnimationController controller) async {
       controller.forward();
-      List data = [title, valueChooseWorkerType, desc, date];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+
+      await AuthService().getEmail(token).then((val) {
+        if (val.data['success']) {
+          email = val.data['email'];
+        }
+      });
+
+      List data = [email, title, valueChooseWorkerType, desc, date];
       await prepareUpload();
       await AuthService().postJobCustomer(data).then((val) {
         if (val.data['success']) {
