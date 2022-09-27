@@ -47,95 +47,111 @@ class _PostjobScreenState extends State<PostjobScreen> {
   ];
   var pickedImage;
   String jobUrl;
-  File _image;
+  // File _image;
+  List<File> _image = [];
+  final picker = ImagePicker();
+  File _storedImage;
   var email;
 
-  void selectFile() async {
-    final picker = ImagePicker();
-    try {
-      pickedImage = await picker.getImage(source: ImageSource.gallery);
-      setState(() {
-        if (pickedImage != null) {
-          _image = File(pickedImage.path);
-        } else {
-          print('No image selected.');
-        }
-      });
-    } on PlatformException catch (e, s) {
-    } on Exception catch (e, s) {}
+  void _takePicture() async {
+    final _pickedImage = await picker.getImage(source: ImageSource.gallery);
+    setState(() {
+      _image.add(File(_pickedImage.path));
+    });
+    //if (_pickedImage.path == null) retrieveLostData();
   }
 
-  Future<CloudinaryResponse> prepareUpload() async {
-    CloudinaryResponse response;
-    if (pickedImage != null) {
-      if (pickedImage.path != null) {
-        response = await uploadFileOnCloudinary(
-          filePath: pickedImage.path,
-          resourceType: CloudinaryResourceType.Auto,
-        );
-        jobUrl = response.url;
-        uploadFileDataOnMongo(email, jobUrl);
-      }
-    }
-    return response;
-  }
-
-  Future<CloudinaryResponse> uploadFileOnCloudinary(
-      {String filePath, CloudinaryResourceType resourceType}) async {
-    CloudinaryResponse response;
-    try {
-      var cloudinary =
-          CloudinaryPublic('projecthandyman', 'p5r8psil', cache: false);
-      response = await cloudinary.uploadFile(
-        CloudinaryFile.fromFile(filePath, resourceType: resourceType),
-      );
-    } on CloudinaryException catch (e, s) {
-      print(e.message);
-      print(e.request);
-    }
-    return response;
-  }
-
-  void uploadFileDataOnMongo(email, url) {
-    AuthService().uploadCustJobImage(email, url).then((val) {
-      if (val.data['success']) {
-        print('Successfully Uploaded');
-      }
+  void _remove(int index) {
+    setState(() {
+      _image.removeAt(index);
     });
   }
+  // void selectFile() async {
+  //   final picker = ImagePicker();
+  //   try {
+  //     pickedImage = await picker.getImage(source: ImageSource.gallery);
+  //     setState(() {
+  //       if (pickedImage != null) {
+  //         _image = File(pickedImage.path);
+  //       } else {
+  //         print('No image selected.');
+  //       }
+  //     });
+  //   } on PlatformException catch (e, s) {
+  //   } on Exception catch (e, s) {}
+  // }
+
+  // Future<CloudinaryResponse> prepareUpload() async {
+  //   CloudinaryResponse response;
+  //   if (pickedImage != null) {
+  //     if (pickedImage.path != null) {
+  //       response = await uploadFileOnCloudinary(
+  //         filePath: pickedImage.path,
+  //         resourceType: CloudinaryResourceType.Auto,
+  //       );
+  //       jobUrl = response.url;
+  //       uploadFileDataOnMongo(email, jobUrl);
+  //     }
+  //   }
+  //   return response;
+  // }
+
+  // Future<CloudinaryResponse> uploadFileOnCloudinary(
+  //     {String filePath, CloudinaryResourceType resourceType}) async {
+  //   CloudinaryResponse response;
+  //   try {
+  //     var cloudinary =
+  //         CloudinaryPublic('projecthandyman', 'p5r8psil', cache: false);
+  //     response = await cloudinary.uploadFile(
+  //       CloudinaryFile.fromFile(filePath, resourceType: resourceType),
+  //     );
+  //   } on CloudinaryException catch (e, s) {
+  //     print(e.message);
+  //     print(e.request);
+  //   }
+  //   return response;
+  // }
+
+  // void uploadFileDataOnMongo(email, url) {
+  //   AuthService().uploadCustJobImage(email, url).then((val) {
+  //     if (val.data['success']) {
+  //       print('Successfully Uploaded');
+  //     }
+  //   });
+  // }
 
   final _form = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    void httpJob(AnimationController controller) async {
-      controller.forward();
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      var token = prefs.getString('token');
+    // void httpJob(AnimationController controller) async {
+    //   controller.forward();
+    //   SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   var token = prefs.getString('token');
 
-      await AuthService().getEmail(token).then((val) {
-        if (val.data['success']) {
-          email = val.data['email'];
-        }
-      });
+    //   await AuthService().getEmail(token).then((val) {
+    //     if (val.data['success']) {
+    //       email = val.data['email'];
+    //     }
+    //   });
 
-      List data = [email, title, valueChooseWorkerType, desc, date];
-      await prepareUpload();
-      await AuthService().postJobCustomer(data).then((val) {
-        if (val.data['success']) {
-          // Navigator.of(context).pushNamed(LoginScreen.routeName);
+    //   List data = [email, title, valueChooseWorkerType, desc, date];
+    //   await prepareUpload();
+    //   await AuthService().postJobCustomer(data).then((val) {
+    //     if (val.data['success']) {
+    //       // Navigator.of(context).pushNamed(LoginScreen.routeName);
 
-          Fluttertoast.showToast(
-              msg: 'Job Posted',
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Theme.of(context).buttonColor,
-              textColor: Theme.of(context).shadowColor,
-              fontSize: 16.0);
-        }
-      });
-      await controller.reset();
-    }
+    //       Fluttertoast.showToast(
+    //           msg: 'Job Posted',
+    //           toastLength: Toast.LENGTH_SHORT,
+    //           gravity: ToastGravity.BOTTOM,
+    //           timeInSecForIosWeb: 1,
+    //           backgroundColor: Theme.of(context).buttonColor,
+    //           textColor: Theme.of(context).shadowColor,
+    //           fontSize: 16.0);
+    //     }
+    //   });
+    //   await controller.reset();
+    // }
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -298,26 +314,6 @@ class _PostjobScreenState extends State<PostjobScreen> {
                         },
                       ),
                     ),
-                    // Padding(
-                    //   padding: const EdgeInsets.all(8.0),
-                    //   child: TextFormField(
-                    //     style: TextStyle(color: Colors.white),
-                    //     decoration: InputDecoration(
-                    //       labelText: 'Date',
-                    //       fillColor: Colors.white,
-                    //       labelStyle: TextStyle(color: Colors.white),
-                    //       enabledBorder: OutlineInputBorder(
-                    //         borderSide: BorderSide(
-                    //             color: Theme.of(context).shadowColor),
-                    //         borderRadius: BorderRadius.circular(5),
-                    //       ),
-                    //       focusedBorder: OutlineInputBorder(
-                    //         borderSide: BorderSide(color: Colors.white),
-                    //         borderRadius: BorderRadius.circular(5),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: DateTimeFormField(
@@ -359,31 +355,95 @@ class _PostjobScreenState extends State<PostjobScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        onTap: () => selectFile(),
-                        child: Container(
-                          height: 100,
-                          width: width,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: BorderRadius.circular(8),
+                      child: Stack(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 100,
+                                width: width * 0.95,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ListView.builder(
+                                    itemCount: _image.length,
+                                    scrollDirection: Axis.horizontal,
+                                    itemBuilder: (ctx, i) => Dismissible(
+                                          key: Key(_image[i].toString()),
+                                          direction: DismissDirection.down,
+                                          onDismissed:
+                                              (DismissDirection direction) {
+                                            setState(() {
+                                              _image.removeAt(i);
+                                            });
+                                          },
+                                          child: GestureDetector(
+                                            // onTap: () {
+                                            //   showDialog(
+                                            //     context: context,
+                                            //     builder: (context) =>
+                                            //         imagePop(context, i),
+                                            //   );
+                                            // },
+                                            child: Container(
+                                              height: 120,
+                                              width: 90,
+                                              margin: EdgeInsets.all(3),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                image: DecorationImage(
+                                                  image: FileImage(_image[i]),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+
+                                    // MyPhotos(
+                                    //   photos[i].id,
+                                    //   photos[i].imagestr,
+                                    // ),
+                                    ),
+                              ),
+                            ],
                           ),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.image,
-                                  color: Colors.white,
+                          if (_image.length < 5)
+                            Positioned(
+                              right: 0,
+                              top: 40,
+                              child: FloatingActionButton(
+                                backgroundColor: Theme.of(context).buttonColor,
+                                splashColor: Theme.of(context).buttonColor,
+                                onPressed: () {
+                                  _takePicture();
+                                },
+                                //  () {
+                                //   showDialog(
+                                //     context: context,
+                                //     builder: (context) => addImage(context),
+                                //   );
+                                // },
+                                child: Icon(
+                                  Icons.add_a_photo,
+                                  color: Colors.black,
                                 ),
-                                Text(
-                                  'Upload Image',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
+                          if (_image.length < 1)
+                            Positioned(
+                              top: 60,
+                              left: 10,
+                              child: Center(
+                                  child: Text(
+                                'No photos added',
+                                style: TextStyle(color: Colors.white),
+                              )),
+                            ),
+                        ],
                       ),
                     ),
                     Padding(
@@ -407,7 +467,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
                             onPressed: (AnimationController controller) async {
                               // print(date.day);
 
-                              await httpJob(controller);
+                              // await httpJob(controller);
                             }),
                       ),
                     ),
