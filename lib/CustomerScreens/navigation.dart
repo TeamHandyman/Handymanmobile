@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:handyman/CustomerScreens/homenew.dart';
 import 'package:handyman/Onboarding/login.dart';
 import 'package:handyman/CustomerScreens/PostJob.dart';
 import 'package:handyman/CustomerScreens/notifications.dart';
@@ -15,7 +16,7 @@ class Navigationscreen extends StatefulWidget {
 
 class _NavigationscreenState extends State<Navigationscreen> {
   List<Widget> _pages = [
-    Homescreen(),
+    HomeNew(),
     JoblistScreen(),
     PostjobScreen(),
     NotificationScreen(),

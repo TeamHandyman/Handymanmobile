@@ -66,7 +66,7 @@ class _HomescreenState extends State<Homescreen> {
                   Navigator.of(context).pushNamed(WorkerPortfolio.routeName),
               child: Container(
                 width: width,
-                height: height * 0.5,
+                height: height * 0.65,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5),
@@ -76,7 +76,7 @@ class _HomescreenState extends State<Homescreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      height: 250,
+                      height: 300,
                       width: width,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
