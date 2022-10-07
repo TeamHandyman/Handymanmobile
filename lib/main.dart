@@ -11,6 +11,7 @@ import 'package:handyman/CustomerScreens/notifications.dart';
 import 'package:handyman/CustomerScreens/home.dart';
 import 'package:handyman/CustomerScreens/joblist.dart';
 import 'package:handyman/CustomerScreens/navigation.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,6 +19,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     String name;
