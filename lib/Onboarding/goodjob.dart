@@ -7,6 +7,7 @@ import 'package:handyman/CustomerScreens/navigation.dart';
 import 'package:handyman/Onboarding/login.dart';
 import 'package:handyman/services/authservice.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import 'package:async/async.dart';
@@ -16,11 +17,15 @@ import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:mongo_dart/mongo_dart.dart' show Db, GridFS;
-import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:cloudinary/cloudinary.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:progress_indicator_button/progress_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:cloudinary_client/cloudinary_client.dart';
 // import 'package:cloudinary_client/models/CloudinaryResponse.dart';
+
+// const String folder =
+//     String.fromEnvironment('CLOUDINARY_FOLDER', defaultValue: 'some-name');
 
 class Goodjobscreen extends StatefulWidget {
   static const routeName = '/goodjob';
@@ -31,7 +36,6 @@ class Goodjobscreen extends StatefulWidget {
 class _GoodjobscreenState extends State<Goodjobscreen> {
   File _image;
   var fName, lName;
-  String propicUrl;
   var pickedImage;
   void selectFile() async {
     final picker = ImagePicker();
@@ -48,16 +52,22 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
     } on Exception catch (e, s) {}
   }
 
+  Future<void> initPush() async {
+    await OneSignal.shared.setAppId("1461f61f-a2a9-4dce-8361-a1a9a810b82b");
+    await OneSignal.shared
+        .getDeviceState()
+        .then((value) => data.add(value.userId));
+  }
+
   Future<CloudinaryResponse> prepareUpload() async {
     CloudinaryResponse response;
     if (pickedImage != null) {
       if (pickedImage.path != null) {
         response = await uploadFileOnCloudinary(
           filePath: pickedImage.path,
-          resourceType: CloudinaryResourceType.Auto,
+          resourceType: CloudinaryResourceType.image,
         );
-        propicUrl = response.url;
-        uploadFileDataOnMongo(data[1], propicUrl);
+        data.add(response.url);
       }
     }
     return response;
@@ -66,26 +76,30 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
   Future<CloudinaryResponse> uploadFileOnCloudinary(
       {String filePath, CloudinaryResourceType resourceType}) async {
     CloudinaryResponse response;
-    try {
-      var cloudinary =
-          CloudinaryPublic('projecthandyman', 'p5r8psil', cache: false);
-      response = await cloudinary.uploadFile(
-        CloudinaryFile.fromFile(filePath, resourceType: resourceType),
-      );
-    } on CloudinaryException catch (e, s) {
-      print(e.message);
-      print(e.request);
-    }
+    var cloudinary = Cloudinary.signedConfig(
+        apiKey: '461133995855746',
+        apiSecret: '-QpKX775LFGsnxH4csUfswOTQl4',
+        cloudName: 'projecthandyman');
+    response = await cloudinary.upload(
+      file: filePath,
+      fileBytes: _image.readAsBytesSync(),
+      resourceType: CloudinaryResourceType.image,
+      folder: 'profile images',
+      fileName: data[1],
+      // progressCallback: (count, total) {
+      //   print('Uploading image from file with progress: $count/$total');
+      // },
+    );
     return response;
   }
 
-  void uploadFileDataOnMongo(email, url) {
-    AuthService().uploadPropic(email, url).then((val) {
-      if (val.data['success']) {
-        print('Successfully Uploaded');
-      }
-    });
-  }
+  // void uploadFileDataOnMongo(email, url) {
+  //   AuthService().uploadPropic(email, url).then((val) {
+  //     if (val.data['success']) {
+  //       print('Successfully Uploaded');
+  //     }
+  //   });
+  // }
 
   // bool isloaded = false;
   // var result;
@@ -135,6 +149,7 @@ class _GoodjobscreenState extends State<Goodjobscreen> {
   Widget build(BuildContext context) {
     void httpJob(AnimationController controller) async {
       controller.forward();
+      await initPush();
       await prepareUpload();
 
       await AuthService().addUserCustomer(data).then((val) {

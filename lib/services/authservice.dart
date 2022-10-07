@@ -56,16 +56,22 @@ class AuthService {
 
   addUserCustomer(data) async {
     try {
+      var data0 = {
+        "fName": data[3],
+        "lName": data[4],
+        "phone": data[0],
+        "email": data[1],
+        "password": data[2],
+        "gender": data[5],
+        "district": data[6],
+        "oneSignalID": data[7]
+      };
+      if (data.length == 9) {
+        data0["proPicUrl"] = data[8];
+      }
+      ;
       return await dio.post('https://projecthandyman.herokuapp.com/addCustomer',
-          data: {
-            "fName": data[3],
-            "lName": data[4],
-            "phone": data[0],
-            "email": data[1],
-            "password": data[2],
-            "gender": data[5],
-            "district": data[6],
-          },
+          data: data0,
           options: Options(contentType: Headers.formUrlEncodedContentType));
     } on DioError catch (e) {
       Fluttertoast.showToast(
@@ -84,10 +90,19 @@ class AuthService {
           'https://projecthandyman.herokuapp.com/postJobCustomer',
           data: {
             "email": data[0],
-            "title": data[1],
-            "workerType": data[2],
-            "description": data[3],
-            "date": data[4],
+            "fName": data[1],
+            "lName": data[2],
+            "proPic": data[3],
+            "title": data[4],
+            "workerType": data[5],
+            "description": data[6],
+            "date": data[7],
+            "oneSignalID": data[8],
+            "url1": data[9],
+            "url2": data[10],
+            "url3": data[11],
+            "url4": data[12],
+            "url5": data[13],
           },
           options: Options(contentType: Headers.formUrlEncodedContentType));
     } on DioError catch (e) {
@@ -145,6 +160,21 @@ class AuthService {
     try {
       dio.options.headers['Authorization'] = 'Bearer $token';
       return await dio.get('https://projecthandyman.herokuapp.com/getEmail');
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  getInfo(email) async {
+    try {
+      return await dio
+          .get('https://projecthandyman.herokuapp.com/getInfo?email=$email');
     } on DioError catch (e) {
       Fluttertoast.showToast(
           msg: e.response.data['msg'],

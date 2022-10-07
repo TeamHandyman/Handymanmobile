@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:handyman/Onboarding/login.dart';
+import 'package:progress_indicator_button/progress_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   static const routeName = '/profile';
@@ -131,7 +134,42 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 fontSize: 18),
                           )
                         ],
-                      )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 20.0,
+                          bottom: 10,
+                          left: 15,
+                          right: 15,
+                        ),
+                        child: GestureDetector(
+                          child: Container(
+                            height: 46,
+                            width: width,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: ProgressButton(
+                                color: Theme.of(context).buttonColor,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                child: Text('Log Out',
+                                    style: TextStyle(
+                                        color:
+                                            Theme.of(context).backgroundColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500)),
+                                onPressed:
+                                    (AnimationController controller) async {
+                                  SharedPreferences preferences =
+                                      await SharedPreferences.getInstance();
+                                  await preferences.clear();
+                                  Navigator.of(context)
+                                      .pushNamed(LoginScreen.routeName);
+                                }),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 )

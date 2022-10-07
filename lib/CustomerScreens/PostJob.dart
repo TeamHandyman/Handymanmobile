@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:cloudinary_public/cloudinary_public.dart';
+import 'package:cloudinary/cloudinary.dart';
 import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +9,7 @@ import 'package:handyman/CustomerScreens/CustomerSubscreens/customerPostedJobs.d
 import 'package:image_picker/image_picker.dart';
 import 'package:progress_indicator_button/progress_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:jwt_decode/jwt_decode.dart';
 import '../Onboarding/login.dart';
 import '../services/authservice.dart';
 
@@ -46,12 +46,13 @@ class _PostjobScreenState extends State<PostjobScreen> {
     'Pest Control'
   ];
   var pickedImage;
-  String jobUrl;
+  List<String> imageUrls = [];
+  String url;
   // File _image;
   List<File> _image = [];
   final picker = ImagePicker();
   File _storedImage;
-  var email;
+  var email, fName, lName, proPic, oneSignalID;
 
   void _takePicture() async {
     final _pickedImage = await picker.getImage(source: ImageSource.gallery);
@@ -66,92 +67,100 @@ class _PostjobScreenState extends State<PostjobScreen> {
       _image.removeAt(index);
     });
   }
-  // void selectFile() async {
-  //   final picker = ImagePicker();
-  //   try {
-  //     pickedImage = await picker.getImage(source: ImageSource.gallery);
-  //     setState(() {
-  //       if (pickedImage != null) {
-  //         _image = File(pickedImage.path);
-  //       } else {
-  //         print('No image selected.');
-  //       }
-  //     });
-  //   } on PlatformException catch (e, s) {
-  //   } on Exception catch (e, s) {}
-  // }
 
-  // Future<CloudinaryResponse> prepareUpload() async {
-  //   CloudinaryResponse response;
-  //   if (pickedImage != null) {
-  //     if (pickedImage.path != null) {
-  //       response = await uploadFileOnCloudinary(
-  //         filePath: pickedImage.path,
-  //         resourceType: CloudinaryResourceType.Auto,
-  //       );
-  //       jobUrl = response.url;
-  //       uploadFileDataOnMongo(email, jobUrl);
-  //     }
-  //   }
-  //   return response;
-  // }
+  Future<CloudinaryResponse> prepareUpload() async {
+    CloudinaryResponse response;
+    if (_image.length > 0) {
+      for (var i = 0; i < _image.length; i++) {
+        response = await uploadFileOnCloudinary(
+          image: _image[i],
+          filePath: _image[i].path,
+          resourceType: CloudinaryResourceType.image,
+        );
+        url = response.url;
+        print(url);
+        imageUrls.add(url);
+      }
+    }
+    return response;
+  }
 
-  // Future<CloudinaryResponse> uploadFileOnCloudinary(
-  //     {String filePath, CloudinaryResourceType resourceType}) async {
-  //   CloudinaryResponse response;
-  //   try {
-  //     var cloudinary =
-  //         CloudinaryPublic('projecthandyman', 'p5r8psil', cache: false);
-  //     response = await cloudinary.uploadFile(
-  //       CloudinaryFile.fromFile(filePath, resourceType: resourceType),
-  //     );
-  //   } on CloudinaryException catch (e, s) {
-  //     print(e.message);
-  //     print(e.request);
-  //   }
-  //   return response;
-  // }
+  Future<CloudinaryResponse> uploadFileOnCloudinary(
+      {File image,
+      String filePath,
+      CloudinaryResourceType resourceType}) async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // var token = prefs.getString('token');
 
-  // void uploadFileDataOnMongo(email, url) {
-  //   AuthService().uploadCustJobImage(email, url).then((val) {
-  //     if (val.data['success']) {
-  //       print('Successfully Uploaded');
-  //     }
-  //   });
-  // }
+    CloudinaryResponse response;
+    var cloudinary = Cloudinary.signedConfig(
+        apiKey: '461133995855746',
+        apiSecret: '-QpKX775LFGsnxH4csUfswOTQl4',
+        cloudName: 'projecthandyman');
+
+    response = await cloudinary.upload(
+      file: filePath,
+      fileBytes: image.readAsBytesSync(),
+      resourceType: CloudinaryResourceType.image,
+      folder: 'cust job images/$email',
+      progressCallback: (count, total) {
+        print('Uploading image from file with progress: $count/$total');
+      },
+    );
+    return response;
+  }
 
   final _form = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    // void httpJob(AnimationController controller) async {
-    //   controller.forward();
-    //   SharedPreferences prefs = await SharedPreferences.getInstance();
-    //   var token = prefs.getString('token');
+    void httpJob(AnimationController controller) async {
+      controller.forward();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+      email = payload['email'];
+      fName = payload['fName'];
+      lName = payload['lName'];
+      oneSignalID = payload['oneSignalID'];
+      payload['profilePic'] != null
+          ? proPic = payload['profilePic']
+          : proPic = "";
+      List data = [
+        email,
+        fName,
+        lName,
+        proPic,
+        title,
+        valueChooseWorkerType,
+        desc,
+        date,
+        oneSignalID
+      ];
 
-    //   await AuthService().getEmail(token).then((val) {
-    //     if (val.data['success']) {
-    //       email = val.data['email'];
-    //     }
-    //   });
+      await prepareUpload();
+      if (imageUrls.length < 5) {
+        while (imageUrls.length < 5) {
+          imageUrls.add("");
+        }
+      }
+      data = data + imageUrls;
+      print(data);
+      await AuthService().postJobCustomer(data).then((val) {
+        if (val.data['success']) {
+          // Navigator.of(context).pushNamed(LoginScreen.routeName);
 
-    //   List data = [email, title, valueChooseWorkerType, desc, date];
-    //   await prepareUpload();
-    //   await AuthService().postJobCustomer(data).then((val) {
-    //     if (val.data['success']) {
-    //       // Navigator.of(context).pushNamed(LoginScreen.routeName);
-
-    //       Fluttertoast.showToast(
-    //           msg: 'Job Posted',
-    //           toastLength: Toast.LENGTH_SHORT,
-    //           gravity: ToastGravity.BOTTOM,
-    //           timeInSecForIosWeb: 1,
-    //           backgroundColor: Theme.of(context).buttonColor,
-    //           textColor: Theme.of(context).shadowColor,
-    //           fontSize: 16.0);
-    //     }
-    //   });
-    //   await controller.reset();
-    // }
+          Fluttertoast.showToast(
+              msg: 'Job Posted',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Theme.of(context).buttonColor,
+              textColor: Theme.of(context).shadowColor,
+              fontSize: 16.0);
+        }
+      });
+      await controller.reset();
+    }
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -467,7 +476,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
                             onPressed: (AnimationController controller) async {
                               // print(date.day);
 
-                              // await httpJob(controller);
+                              await httpJob(controller);
                             }),
                       ),
                     ),
