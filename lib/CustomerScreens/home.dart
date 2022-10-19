@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/workerportfolio.dart';
+import 'package:handyman/CustomerScreens/searchScreen.dart';
 
 class Homescreen extends StatefulWidget {
   static const routeName = '/homescreen';
@@ -172,7 +173,11 @@ class _HomescreenState extends State<Homescreen> {
         ),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+          IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                Navigator.of(context).pushNamed(SearchScreen.routeName);
+              }),
         ],
       ),
       backgroundColor: Theme.of(context).backgroundColor,
@@ -196,7 +201,7 @@ class _HomescreenState extends State<Homescreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 3.0, bottom: 0, left: 10),
+              padding: EdgeInsets.only(top: 3.0, bottom: 5, left: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -213,39 +218,49 @@ class _HomescreenState extends State<Homescreen> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).shadowColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                height: 50,
-                width: width,
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25, right: 25),
-                        child: Text(
-                          'Search',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25, right: 25),
-                        child: Icon(
-                          Icons.search,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            Divider(
+              color: Colors.white38,
+              thickness: 1,
+              indent: 15,
+              endIndent: 15,
             ),
+            // Padding(
+            //   padding: const EdgeInsets.all(10.0),
+            //   child: GestureDetector(
+            //     onTap: () =>
+            //         Navigator.of(context).pushNamed(SearchScreen.routeName),
+            //     child: Container(
+            //       decoration: BoxDecoration(
+            //         color: Theme.of(context).shadowColor,
+            //         borderRadius: BorderRadius.circular(8),
+            //       ),
+            //       height: 50,
+            //       width: width,
+            //       child: Center(
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //           crossAxisAlignment: CrossAxisAlignment.center,
+            //           children: [
+            //             Padding(
+            //               padding: const EdgeInsets.only(left: 25, right: 25),
+            //               child: Text(
+            //                 'Search',
+            //                 style: TextStyle(color: Colors.black),
+            //               ),
+            //             ),
+            //             Padding(
+            //               padding: const EdgeInsets.only(left: 25, right: 25),
+            //               child: Icon(
+            //                 Icons.search,
+            //                 color: Colors.black,
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [

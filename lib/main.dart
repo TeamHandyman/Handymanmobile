@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/customerPostedJobs.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/workerportfolio.dart';
 import 'package:handyman/CustomerScreens/homenew.dart';
+import 'package:handyman/CustomerScreens/searchScreen.dart';
 import 'package:handyman/Onboarding/goodjob.dart';
 import 'package:handyman/Onboarding/login.dart';
 import 'package:handyman/Onboarding/signup.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         WorkerPortfolio.routeName: (ctx) => WorkerPortfolio(),
         PostedJobsScreen.routeName: (ctx) => PostedJobsScreen(),
         HomeNew.routeName: (ctx) => HomeNew(),
+        SearchScreen.routeName: (ctx) => SearchScreen(),
       },
     );
   }

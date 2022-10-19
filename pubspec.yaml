@@ -78,6 +78,17 @@ flutter:
    - assets/images/profile1.jpg
    - assets/images/services1.jpeg
    - assets/images/services2.jpeg
+   - assets/icons/carpenter.png
+   - assets/icons/contractors.png
+   - assets/icons/electrician.png
+   - assets/icons/landscaping.png
+   - assets/icons/mason.png
+   - assets/icons/mechanic.png
+   - assets/icons/movers.png
+   - assets/icons/painter.png
+   - assets/icons/pest.png
+   - assets/icons/plumber.png
+   - assets/icons/welding.png
 
 
 
