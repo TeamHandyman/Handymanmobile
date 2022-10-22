@@ -177,11 +177,11 @@ class _PostjobScreenState extends State<PostjobScreen> {
           ),
           centerTitle: true,
           actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.list),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(PostedJobsScreen.routeName);
-                }),
+            // IconButton(
+            //     icon: Icon(Icons.list),
+            //     onPressed: () {
+            //       Navigator.of(context).pushNamed(PostedJobsScreen.routeName);
+            //     }),
           ],
         ),
         backgroundColor: Theme.of(context).backgroundColor,
@@ -424,21 +424,19 @@ class _PostjobScreenState extends State<PostjobScreen> {
                             Positioned(
                               right: 0,
                               top: 40,
-                              child: FloatingActionButton(
-                                backgroundColor: Theme.of(context).buttonColor,
-                                splashColor: Theme.of(context).buttonColor,
-                                onPressed: () {
-                                  _takePicture();
-                                },
-                                //  () {
-                                //   showDialog(
-                                //     context: context,
-                                //     builder: (context) => addImage(context),
-                                //   );
-                                // },
-                                child: Icon(
-                                  Icons.add_a_photo,
-                                  color: Colors.black,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.transparent,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _takePicture();
+                                    },
+                                    child: Icon(
+                                      Icons.add_a_photo,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -449,7 +447,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
                               child: Center(
                                   child: Text(
                                 'No photos added',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: Colors.white54),
                               )),
                             ),
                         ],
@@ -480,6 +478,33 @@ class _PostjobScreenState extends State<PostjobScreen> {
                             }),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.view_agenda,
+                            color: Theme.of(context).buttonColor,
+                            size: 16,
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          InkWell(
+                            onTap: (() => Navigator.of(context)
+                                .pushNamed(PostedJobsScreen.routeName)),
+                            child: Text(
+                              'View posted jobs',
+                              style: TextStyle(
+                                  color: Theme.of(context).buttonColor,
+                                  fontSize: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               )

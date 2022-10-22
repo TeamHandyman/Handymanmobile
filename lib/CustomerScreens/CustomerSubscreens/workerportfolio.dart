@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class WorkerPortfolio extends StatefulWidget {
   static const routeName = '/portfolioscreen';
@@ -8,10 +9,40 @@ class WorkerPortfolio extends StatefulWidget {
 }
 
 class _WorkerPortfolioState extends State<WorkerPortfolio> {
+  var _saved = false;
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
+    void _saveWorker() {
+      print("Called");
+      setState(() {
+        _saved = !_saved;
+        if (_saved == true) {
+          Fluttertoast.showToast(
+              msg: "Saved succesfully",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Theme.of(context).buttonColor,
+              textColor: Colors.black,
+              fontSize: 16.0);
+        }
+      });
+    }
+
+    void _requestQuote() {
+      Fluttertoast.showToast(
+          msg: "Requested successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Theme.of(context).buttonColor,
+          textColor: Colors.black,
+          fontSize: 16.0);
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).backgroundColor,
@@ -34,6 +65,15 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                     textAlign: TextAlign.start,
                   ),
                 ),
+                Spacer(),
+                IconButton(
+                    onPressed: () => _saveWorker(),
+                    icon: Icon(
+                      Icons.bookmark,
+                      color: _saved
+                          ? Theme.of(context).buttonColor
+                          : Colors.white54,
+                    )),
               ],
             ),
             Padding(
@@ -403,6 +443,9 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
+                    onTap: () {
+                      _requestQuote();
+                    },
                     child: Container(
                       height: 40,
                       width: 300,
