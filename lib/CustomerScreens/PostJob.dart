@@ -510,7 +510,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
                               child: Center(
                                   child: Text(
                                 'No photos added',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: Colors.white54),
                               )),
                             ),
                         ],

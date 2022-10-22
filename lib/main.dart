@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/confirmedjobsscreen.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/customerPostedJobs.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/locationPickerScreen.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/quotation.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/workerportfolio.dart';
 import 'package:handyman/CustomerScreens/homenew.dart';
 import 'package:handyman/CustomerScreens/searchScreen.dart';
@@ -47,7 +49,9 @@ class MyApp extends StatelessWidget {
         PostedJobsScreen.routeName: (ctx) => PostedJobsScreen(),
         HomeNew.routeName: (ctx) => HomeNew(),
         SearchScreen.routeName: (ctx) => SearchScreen(),
-        locationPickerScreen.routeName: (ctx) => locationPickerScreen()
+        locationPickerScreen.routeName: (ctx) => locationPickerScreen(),
+        ConfirmedJobsScreen.routeName: (ctx) => ConfirmedJobsScreen(),
+        quotationScreen.routeName: (ctx) => quotationScreen(),
       },
     );
   }
