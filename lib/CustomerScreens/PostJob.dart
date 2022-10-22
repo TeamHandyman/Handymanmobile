@@ -487,21 +487,19 @@ class _PostjobScreenState extends State<PostjobScreen> {
                             Positioned(
                               right: 0,
                               top: 40,
-                              child: FloatingActionButton(
-                                backgroundColor: Theme.of(context).buttonColor,
-                                splashColor: Theme.of(context).buttonColor,
-                                onPressed: () {
-                                  _takePicture();
-                                },
-                                //  () {
-                                //   showDialog(
-                                //     context: context,
-                                //     builder: (context) => addImage(context),
-                                //   );
-                                // },
-                                child: Icon(
-                                  Icons.add_a_photo,
-                                  color: Colors.black,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.transparent,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _takePicture();
+                                    },
+                                    child: Icon(
+                                      Icons.add_a_photo,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
