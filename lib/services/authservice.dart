@@ -98,11 +98,13 @@ class AuthService {
             "description": data[6],
             "date": data[7],
             "oneSignalID": data[8],
-            "url1": data[9],
-            "url2": data[10],
-            "url3": data[11],
-            "url4": data[12],
-            "url5": data[13],
+            "lat": data[9],
+            "long": data[10],
+            "url1": data[11],
+            "url2": data[12],
+            "url3": data[13],
+            "url4": data[14],
+            "url5": data[15],
           },
           options: Options(contentType: Headers.formUrlEncodedContentType));
     } on DioError catch (e) {

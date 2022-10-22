@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:cloudinary/cloudinary.dart';
@@ -5,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/customerPostedJobs.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/locationPickerScreen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:progress_indicator_button/progress_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,7 +24,9 @@ class PostjobScreen extends StatefulWidget {
 }
 
 class _PostjobScreenState extends State<PostjobScreen> {
-  String title, jobType, desc;
+  bool locationSelected = false;
+  String title, jobType, desc, latLong;
+  double lat, long;
   var valueChooseWorkerType;
   DateTime date;
   List jobTypes = [
@@ -110,6 +115,19 @@ class _PostjobScreenState extends State<PostjobScreen> {
     return response;
   }
 
+  void moveToMapPage() async {
+    latLong = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          fullscreenDialog: true, builder: (context) => locationPickerScreen()),
+    );
+    final splitted = latLong.split(" ");
+    lat = double.parse(splitted[0]);
+    long = double.parse(splitted[1]);
+    locationSelected = true;
+    setState(() {});
+  }
+
   final _form = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -134,7 +152,9 @@ class _PostjobScreenState extends State<PostjobScreen> {
         valueChooseWorkerType,
         desc,
         date,
-        oneSignalID
+        oneSignalID,
+        lat,
+        long
       ];
 
       await prepareUpload();
@@ -144,7 +164,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
         }
       }
       data = data + imageUrls;
-      print(data);
+
       await AuthService().postJobCustomer(data).then((val) {
         if (val.data['success']) {
           // Navigator.of(context).pushNamed(LoginScreen.routeName);
@@ -360,6 +380,49 @@ class _PostjobScreenState extends State<PostjobScreen> {
                         onDateSelected: (DateTime value) {
                           date = value;
                         },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              moveToMapPage();
+                            },
+                            child: Container(
+                              height: 100,
+                              width: width * 0.95,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Center(
+                                  child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                      locationSelected
+                                          ? latLong
+                                          : "Select Location",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: Icon(
+                                      Icons.location_on,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              )),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Padding(
