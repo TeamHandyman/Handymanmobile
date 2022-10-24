@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/workerportfolio.dart';
+import 'package:handyman/services/authservice.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationScreen extends StatefulWidget {
   static const routeName = '/notificationscreen';
@@ -9,13 +12,57 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  var jobAcceptNotificationData, workerDetails = [];
+  var emailList = [];
   @override
+  void getCustomerNotificationsForJobAccept() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    var email = payload['email'];
+
+    await AuthService().getCustomerNotificationsForJobAccept(email).then((val) {
+      jobAcceptNotificationData = val.data["responses"];
+    });
+    for (var i in jobAcceptNotificationData) {
+      if (!i['responses'].isEmpty) {
+        emailList += i['responses'];
+      }
+    }
+    for (var i in emailList) {
+      await AuthService().getInfo(i).then((val) {
+        if (val.data['success']) {
+          workerDetails.add(val.data["user"]);
+        }
+      });
+    }
+
+    setState(() {});
+  }
+
+  void initState() {
+    super.initState();
+    getCustomerNotificationsForJobAccept();
+  }
+
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    Widget notificationCard(BuildContext context, String text, Color color) {
+    Widget notificationCard(
+        BuildContext context,
+        String text,
+        Color color,
+        String desc,
+        String workerName,
+        String workerDistrict,
+        String workerPropic) {
       return GestureDetector(
-        onTap: () => Navigator.of(context).pushNamed(WorkerPortfolio.routeName),
+        onTap: () {
+          List data = [workerName, workerDistrict, workerPropic];
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => WorkerPortfolio(),
+              settings: RouteSettings(arguments: data)));
+        },
         child: Container(
           height: 70,
           width: width,
@@ -52,7 +99,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 5, top: 5),
                     child: Text(
-                      'This is a dummy notification',
+                      desc,
                       style: TextStyle(color: Colors.white54),
                     ),
                   ),
@@ -100,10 +147,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
               ],
             ),
-            notificationCard(context, 'Job accepted', Colors.amber),
-            notificationCard(
-                context, 'Payment pending', Theme.of(context).buttonColor),
-            notificationCard(context, 'New job request', Colors.green[600]),
+            for (var i in workerDetails)
+              notificationCard(
+                context,
+                'Job accepted',
+                Colors.amber,
+                i['fName'] + ' ' + i['lName'] + ' accepted your job request.',
+                i['fName'] + ' ' + i['lName'],
+                i['district'],
+                i['profilePic'],
+              ),
           ],
         ),
       ),

@@ -188,6 +188,21 @@ class AuthService {
     }
   }
 
+  getCustomerNotificationsForJobAccept(email) async {
+    try {
+      return await dio.get(
+          'https://projecthandyman.herokuapp.com/getCustomerNotificationsForJobAccept?email=$email');
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
   // getPropic(email) async {
   //   try {
   //     return await dio
