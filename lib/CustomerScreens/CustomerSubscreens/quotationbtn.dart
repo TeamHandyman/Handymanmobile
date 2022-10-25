@@ -1,20 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:handyman/CustomerScreens/joblist.dart';
 import 'package:intl/intl.dart';
 
-class quotationScreen extends StatefulWidget {
-  static const routeName = '/quotationscreen';
+import '../../services/authservice.dart';
+
+class quotationBtnScreen extends StatefulWidget {
+  static const routeName = '/quotationbtnscreen';
   @override
-  State<quotationScreen> createState() => _quotationScreenState();
+  State<quotationBtnScreen> createState() => _quotationBtnScreenState();
 }
 
-class _quotationScreenState extends State<quotationScreen> {
+class _quotationBtnScreenState extends State<quotationBtnScreen> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    List data = ModalRoute.of(context).settings.arguments as List;
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    List data = ModalRoute.of(context).settings.arguments as List;
+
     DateTime estDate = DateTime.parse(data[2]);
+
+    void confirmJob() async {
+      await AuthService().confirmJob(data[7]);
+
+      Fluttertoast.showToast(
+          msg: "Quotation Confirmed",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Theme.of(context).buttonColor,
+          textColor: Colors.black,
+          fontSize: 16.0);
+      Navigator.pushNamed(context, JoblistScreen.routeName);
+    }
 
     Widget requestPop(BuildContext context) {
       return Dialog(
@@ -158,6 +177,38 @@ class _quotationScreenState extends State<quotationScreen> {
                 ),
               ],
             ),
+            SizedBox(
+              height: 30,
+            ),
+            Center(
+              child: InkWell(
+                onTap: () {
+                  //_requestQuote();
+                  Navigator.of(context).pop();
+                },
+                child: GestureDetector(
+                  onTap: () {
+                    confirmJob();
+                  },
+                  child: Container(
+                    height: 46,
+                    width: width * 0.7,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).buttonColor,
+                      // color: Theme.of(context).buttonColor,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Confirm job',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       )),

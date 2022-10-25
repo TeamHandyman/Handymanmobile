@@ -57,7 +57,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
   List<File> _image = [];
   final picker = ImagePicker();
   File _storedImage;
-  var email, fName, lName, proPic, oneSignalID;
+  var email, fName, lName, proPic, oneSignalID, district;
 
   void _takePicture() async {
     final _pickedImage = await picker.getImage(source: ImageSource.gallery);
@@ -139,6 +139,9 @@ class _PostjobScreenState extends State<PostjobScreen> {
       email = payload['email'];
       fName = payload['fName'];
       lName = payload['lName'];
+      List<Placemark> pm = await placemarkFromCoordinates(lat, long);
+
+      district = pm.first.subAdministrativeArea;
       oneSignalID = payload['oneSignalID'];
       payload['profilePic'] != null
           ? proPic = payload['profilePic']
@@ -147,6 +150,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
         email,
         fName,
         lName,
+        district,
         proPic,
         title,
         valueChooseWorkerType,

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/quotation.dart';
+import 'package:handyman/CustomerScreens/joblist.dart';
 import 'package:progress_indicator_button/progress_button.dart';
+import 'package:intl/intl.dart';
+
+import '../../services/authservice.dart';
 
 class ConfirmedJobsScreen extends StatefulWidget {
   static const routeName = '/confiremdjobsscreen';
@@ -12,15 +17,34 @@ class ConfirmedJobsScreen extends StatefulWidget {
 class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
   @override
   Widget build(BuildContext context) {
+    List data = ModalRoute.of(context).settings.arguments as List;
+    void httpJob(AnimationController controller) async {
+      controller.forward();
+      await AuthService().markJobAsComplete(data[8]).then((val) {
+        Fluttertoast.showToast(
+            msg: "Done",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Theme.of(context).buttonColor,
+            textColor: Colors.black,
+            fontSize: 16.0);
+        Navigator.pushNamed(context, JoblistScreen.routeName);
+      });
+      await controller.reset();
+    }
+
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    DateTime estDateD = DateTime.parse(data[2]);
+    DateTime confirmedDateD = DateTime.parse(data[1]);
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    Widget headingText(
-        BuildContext context, String title, String worker, String location) {
+    Widget headingText(BuildContext context, String title) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Text(
-          title + ' | ' + worker + ' | ' + location,
+          title,
           style: TextStyle(
               color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
         ),
@@ -35,7 +59,7 @@ class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            headingText(context, 'Mechanic', 'Nuwan', 'Matara'),
+            headingText(context, data[0]),
             Center(
               child: Text(
                 'Ongoing',
@@ -59,7 +83,7 @@ class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
                   width: 10,
                 ),
                 Text(
-                  '21 June 2022',
+                  formatter.format(confirmedDateD),
                   style: TextStyle(color: Colors.white, fontSize: 15),
                 ),
               ],
@@ -75,7 +99,7 @@ class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
                   width: 10,
                 ),
                 Text(
-                  '21 September 2022',
+                  formatter.format(estDateD),
                   style: TextStyle(color: Colors.white, fontSize: 15),
                 ),
               ],
@@ -96,7 +120,7 @@ class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
                 child: Text(
-                  'Sample description Sample description Sample description Sample description Sample description Sample description Sample description Sample description Sample description',
+                  data[4],
                   style: TextStyle(
                     color: Colors.white,
                   ),
@@ -107,7 +131,7 @@ class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
               height: 20,
             ),
             Text(
-              'Method - ' + 'Hourly rate',
+              'Method - ' + data[3],
               style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -123,8 +147,18 @@ class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    print("Clicked");
-                    Navigator.of(context).pushNamed(quotationScreen.routeName);
+                    List dataForQuotation = [
+                      data[0],
+                      data[4],
+                      data[2],
+                      data[5],
+                      data[6],
+                      data[7],
+                      data[3],
+                    ];
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => quotationScreen(),
+                        settings: RouteSettings(arguments: dataForQuotation)));
                   },
                   child: Text(
                     'View quotation',
@@ -260,9 +294,7 @@ class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
                             fontSize: 14,
                             fontWeight: FontWeight.w500)),
                     onPressed: (AnimationController controller) async {
-                      // print(date.day);
-
-                      await null;
+                      await httpJob(controller);
                     }),
               ),
             ),

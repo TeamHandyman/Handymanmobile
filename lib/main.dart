@@ -3,6 +3,8 @@ import 'package:handyman/CustomerScreens/CustomerSubscreens/confirmedjobsscreen.
 import 'package:handyman/CustomerScreens/CustomerSubscreens/customerPostedJobs.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/locationPickerScreen.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/quotation.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/quotationbtn.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/savedworkers.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/workerportfolio.dart';
 import 'package:handyman/CustomerScreens/homenew.dart';
 import 'package:handyman/CustomerScreens/searchScreen.dart';
@@ -52,6 +54,8 @@ class MyApp extends StatelessWidget {
         locationPickerScreen.routeName: (ctx) => locationPickerScreen(),
         ConfirmedJobsScreen.routeName: (ctx) => ConfirmedJobsScreen(),
         quotationScreen.routeName: (ctx) => quotationScreen(),
+        quotationBtnScreen.routeName: (ctx) => quotationBtnScreen(),
+        SavedworkerScreen.routeName: (ctx) => SavedworkerScreen()
       },
     );
   }

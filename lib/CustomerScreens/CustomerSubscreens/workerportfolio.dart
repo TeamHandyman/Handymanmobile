@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:progress_indicator_button/progress_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/authservice.dart';
 
@@ -10,25 +13,53 @@ class WorkerPortfolio extends StatefulWidget {
   State<WorkerPortfolio> createState() => _WorkerPortfolioState();
 }
 
+bool isRequested;
+
 class _WorkerPortfolioState extends State<WorkerPortfolio> {
   var _saved = false;
   @override
   Widget build(BuildContext context) {
     List data = ModalRoute.of(context).settings.arguments as List;
-    Future<void> _getQuotationState() async {
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // var token = prefs.getString('token');
-      // Map<String, dynamic> payload = Jwt.parseJwt(token);
-      // email = payload['email'];
-      // name = payload['fName'] + ' ' + payload['lName'];
-      // await AuthService().getQuotationState(ad_data[9]).then((val) {
-      //   var emails = val.data["emails"];
-      //   // isAccepted = emails.contains(email);
-      // });
-    }
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    Future<void> _getQuotationState() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+      var email = payload['email'];
+      await AuthService().getQuotationState(data[4], email).then((val) {
+        isRequested = val.data["success"];
+      });
+    }
+
+    // Future<void> _getJobRequestState() async {
+    //   SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   var token = prefs.getString('token');
+    //   Map<String, dynamic> payload = Jwt.parseJwt(token);
+    //   var email = payload['email'];
+    //   print("asdsad");
+    //   await AuthService().getQuotationState(data[4], email).then((val) {
+    //     isRequested = val.data["success"];
+    //   });
+    // }
+
+    void httpJob(AnimationController controller) async {
+      controller.forward();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+      Map<String, dynamic> payload = Jwt.parseJwt(token);
+      var name = payload['fName'] + ' ' + payload['lName'];
+      var email = payload['email'];
+      var msg = "You have recieved a quotation request from " + name + ".";
+
+      await AuthService().sendPushNotification(data[3], msg);
+      var quotationData = [data[4], email, data[5], data[6], name];
+
+      await AuthService().createQuotation(quotationData);
+
+      controller.reset();
+    }
 
     void _saveWorker() {
       print("Called");
@@ -47,15 +78,84 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
       });
     }
 
-    void _requestQuote() {
-      Fluttertoast.showToast(
-          msg: "Requested successfully",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Theme.of(context).buttonColor,
-          textColor: Colors.black,
-          fontSize: 16.0);
+    Widget requestPop(BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15))),
+        child: Container(
+            margin: EdgeInsets.all(7),
+            padding: EdgeInsets.all(7),
+            width: width,
+            height: 350,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: width * 0.9,
+                  height: 250,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      image: DecorationImage(
+                          image: AssetImage('assets/images/stepsn.png'),
+                          fit: BoxFit.cover)),
+                ),
+                Spacer(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.link,
+                      color: Colors.black,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      'Learn More',
+                      style: TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                  ],
+                ),
+                Center(
+                  child: ProgressButton(
+                      color: Theme.of(context).buttonColor,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      child: Text(
+                          isRequested
+                              ? 'Already Requested'
+                              : 'Request Quotation',
+                          style: TextStyle(
+                              color: Theme.of(context).backgroundColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500)),
+                      onPressed: (AnimationController controller) async {
+                        if (isRequested) {
+                          Fluttertoast.showToast(
+                              msg: 'Already Requested',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        } else {
+                          await httpJob(controller);
+                          Fluttertoast.showToast(
+                              msg: 'Request Sent',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Theme.of(context).buttonColor,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                          Navigator.pop(context);
+                          setState(() {});
+                        }
+                      }),
+                )
+              ],
+            )),
+      );
     }
 
     return FutureBuilder(
@@ -380,8 +480,17 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                             CircleAvatar(
                               radius: 45,
                               backgroundColor: Theme.of(context).shadowColor,
-                              backgroundImage:
-                                  data[2] != "" ? NetworkImage(data[2]) : null,
+                              backgroundImage: data[2] != null
+                                  ? NetworkImage(data[2])
+                                  : null,
+                              child: data[2] == null
+                                  ? Center(
+                                      child: Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : null,
                             ),
                             Padding(
                               padding: const EdgeInsets.only(
@@ -432,7 +541,7 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                                     ),
                                   ),
                                   Text(
-                                    'Member since 2020',
+                                    'Jobs Completed: ' + data[7].toString(),
                                     style: TextStyle(
                                       color: Colors.white,
                                     ),
@@ -467,7 +576,9 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              _requestQuote();
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => requestPop(context));
                             },
                             child: Container(
                               height: 40,

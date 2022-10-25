@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/workerportfolio.dart';
 import 'package:handyman/CustomerScreens/searchScreen.dart';
 
+import '../services/authservice.dart';
+
 class Homescreen extends StatefulWidget {
   static const routeName = '/homescreen';
   // String name;
@@ -17,12 +19,34 @@ class _HomescreenState extends State<Homescreen> {
   _HomescreenState();
 
   @override
+  List<dynamic> ads = [];
+  void getWorkerAds() async {
+    await AuthService().getWorkerAds().then((val) {
+      ads = val.data["u"];
+    });
+    setState(() {});
+  }
+
+  void initState() {
+    super.initState();
+    getWorkerAds();
+  }
+
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
     Widget advertisement(
-        BuildContext context, String fname, String lname, String image) {
+        BuildContext context,
+        String name,
+        String proPic,
+        String adImg,
+        String desc,
+        String district,
+        String oneSignalId,
+        String workerEmail,
+        String jobTitle,
+        String jobId) {
       return Column(
         children: [
           Padding(
@@ -37,14 +61,8 @@ class _HomescreenState extends State<Homescreen> {
                   CircleAvatar(
                     backgroundColor: Colors.grey,
                     radius: 20,
-                    backgroundImage: AssetImage('assets/images/services1.jpeg'),
-                    child: Center(
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 15,
-                      ),
-                    ),
+                    backgroundImage:
+                        proPic != null ? NetworkImage(proPic) : null,
                   ),
                   Padding(
                     padding: EdgeInsets.only(
@@ -52,7 +70,7 @@ class _HomescreenState extends State<Homescreen> {
                       right: 15,
                     ),
                     child: Text(
-                      fname + ' ' + lname,
+                      name,
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ),
@@ -63,8 +81,20 @@ class _HomescreenState extends State<Homescreen> {
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: GestureDetector(
-              onTap: () =>
-                  Navigator.of(context).pushNamed(WorkerPortfolio.routeName),
+              onTap: () {
+                var data = [
+                  name,
+                  district,
+                  proPic,
+                  oneSignalId,
+                  workerEmail,
+                  jobTitle,
+                  jobId
+                ];
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => WorkerPortfolio(),
+                    settings: RouteSettings(arguments: data)));
+              },
               child: Container(
                 width: width,
                 height: height * 0.65,
@@ -85,16 +115,13 @@ class _HomescreenState extends State<Homescreen> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(5.0),
-                        child: Image.asset(
-                          'assets/images/${image}.jpg',
-                          fit: BoxFit.fill,
-                        ),
+                        child: adImg != null ? Image.network(adImg) : null,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'This is a dummy description of the advertisement i\'am going to share. I can edit the text and change advertisement cover',
+                        desc != null ? desc : "Description empty",
                         style: TextStyle(color: Colors.black),
                         textAlign: TextAlign.start,
                       ),
@@ -224,43 +251,6 @@ class _HomescreenState extends State<Homescreen> {
               indent: 15,
               endIndent: 15,
             ),
-            // Padding(
-            //   padding: const EdgeInsets.all(10.0),
-            //   child: GestureDetector(
-            //     onTap: () =>
-            //         Navigator.of(context).pushNamed(SearchScreen.routeName),
-            //     child: Container(
-            //       decoration: BoxDecoration(
-            //         color: Theme.of(context).shadowColor,
-            //         borderRadius: BorderRadius.circular(8),
-            //       ),
-            //       height: 50,
-            //       width: width,
-            //       child: Center(
-            //         child: Row(
-            //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //           crossAxisAlignment: CrossAxisAlignment.center,
-            //           children: [
-            //             Padding(
-            //               padding: const EdgeInsets.only(left: 25, right: 25),
-            //               child: Text(
-            //                 'Search',
-            //                 style: TextStyle(color: Colors.black),
-            //               ),
-            //             ),
-            //             Padding(
-            //               padding: const EdgeInsets.only(left: 25, right: 25),
-            //               child: Icon(
-            //                 Icons.search,
-            //                 color: Colors.black,
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -279,9 +269,24 @@ class _HomescreenState extends State<Homescreen> {
                 )
               ],
             ),
-            advertisement(context, 'Nimal', 'Siripala', 'ad'),
-            advertisement(context, 'Kamal', 'Gunarathne', 'ad1'),
-            advertisement(context, 'Amal', 'Perera', 'ad'),
+            for (var i in ads)
+              advertisement(
+                  context,
+                  i['fName'] + ' ' + i['lName'],
+                  i['profilePic'],
+                  i['workerAdImgUrl'],
+                  i['workerAdDesc'],
+                  i['district'],
+                  i['oneSignalID'],
+                  i['email'],
+                  i['jobType'] +
+                      ' | ' +
+                      i['fName'] +
+                      ' ' +
+                      i['lName'] +
+                      ' | ' +
+                      i['district'],
+                  ""),
           ],
         ),
       ),

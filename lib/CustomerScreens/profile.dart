@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/savedworkers.dart';
 import 'package:handyman/Onboarding/login.dart';
 import 'package:progress_indicator_button/progress_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +17,36 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    Widget profileButtons(BuildContext context, String text, IconData icon) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: (() =>
+                  Navigator.of(context).pushNamed(SavedworkerScreen.routeName)),
+              child: CircleAvatar(
+                backgroundColor: Theme.of(context).buttonColor,
+                child: Icon(
+                  icon,
+                  color: Colors.black,
+                  size: 25,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              text,
+              style:
+                  TextStyle(color: Theme.of(context).buttonColor, fontSize: 15),
+            ),
+          ],
+        ),
+      );
+    }
+
     TabController _tabController = TabController(length: 3, vsync: this);
     return Scaffold(
       appBar: AppBar(
@@ -119,20 +150,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                         )),
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.edit,
-                            color: Colors.blue,
-                            size: 25,
-                          ),
-                          Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18),
-                          )
+                          profileButtons(context, 'Edit', Icons.edit),
+                          profileButtons(
+                              context, 'Message', Icons.chat_bubble_outline),
+                          profileButtons(
+                              context, 'Payment', Icons.payment_outlined),
+                          profileButtons(
+                              context, 'Saved', Icons.bookmark_border),
                         ],
                       ),
                       Padding(
@@ -150,13 +177,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                               borderRadius: BorderRadius.circular(5),
                             ),
                             child: ProgressButton(
-                                color: Theme.of(context).buttonColor,
+                                color: Theme.of(context).backgroundColor,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(8)),
                                 child: Text('Log Out',
                                     style: TextStyle(
-                                        color:
-                                            Theme.of(context).backgroundColor,
+                                        color: Theme.of(context).buttonColor,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500)),
                                 onPressed:

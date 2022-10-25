@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/confirmedjobsscreen.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/quotation.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+
+import '../services/authservice.dart';
 
 class JoblistScreen extends StatefulWidget {
   static const routeName = '/joblistscreen';
@@ -11,10 +17,75 @@ class JoblistScreen extends StatefulWidget {
 
 class _JoblistScreenState extends State<JoblistScreen>
     with TickerProviderStateMixin {
+  var _confirmed = false;
   @override
+  List<dynamic> ads = [];
+  List<dynamic> confirmedQs = [];
+  List<dynamic> completedQs = [];
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  void getRecievedQuotations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    var email = payload['email'];
+    await AuthService().getRecievedQuotations(email).then((val) {
+      ads = val.data["u"];
+    });
+
+    setState(() {});
+  }
+
+  void getConfirmedQuotations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    var email = payload['email'];
+    await AuthService().getConfirmedQuotations(email).then((val) {
+      confirmedQs = val.data["u"];
+    });
+
+    setState(() {});
+  }
+
+  void getCompletedQuotations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    Map<String, dynamic> payload = Jwt.parseJwt(token);
+    var email = payload['email'];
+    await AuthService().getCompletedQuotations(email).then((val) {
+      completedQs = val.data["u"];
+    });
+
+    setState(() {});
+  }
+
+  void initState() {
+    super.initState();
+    getRecievedQuotations();
+    getConfirmedQuotations();
+    getCompletedQuotations();
+  }
+
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
+    void confirmJob(jobId, index) async {
+      await AuthService().confirmJob(jobId);
+
+      Fluttertoast.showToast(
+          msg: "Quotation Confirmed",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Theme.of(context).buttonColor,
+          textColor: Colors.black,
+          fontSize: 16.0);
+
+      setState(() {
+        ads.removeAt(index);
+      });
+    }
 
     Widget progress(BuildContext context, String status, Color color) {
       return Row(
@@ -56,10 +127,39 @@ class _JoblistScreenState extends State<JoblistScreen>
       );
     }
 
-    Widget jobCard(BuildContext context, String status, Color progressColor) {
+    Widget jobCard(
+        BuildContext context,
+        String status,
+        Color progressColor,
+        String jobTitle,
+        String workerName,
+        String estDate,
+        String revMethod,
+        String confirmedDate,
+        String desc,
+        String estTotal,
+        String hourlyRate,
+        String imgUrl,
+        String jobId) {
+      DateTime estDateD = DateTime.parse(estDate);
+      DateTime confirmedDateD = DateTime.parse(confirmedDate);
       return GestureDetector(
-        onTap: () =>
-            Navigator.of(context).pushNamed(ConfirmedJobsScreen.routeName),
+        onTap: () {
+          List data = [
+            jobTitle,
+            confirmedDate,
+            estDate,
+            revMethod,
+            desc,
+            estTotal,
+            hourlyRate,
+            imgUrl,
+            jobId
+          ];
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ConfirmedJobsScreen(),
+              settings: RouteSettings(arguments: data)));
+        },
         child: Padding(
           padding: const EdgeInsets.all(3.0),
           child: Container(
@@ -77,7 +177,7 @@ class _JoblistScreenState extends State<JoblistScreen>
                   padding: const EdgeInsets.only(
                       left: 15.0, right: 15, top: 15, bottom: 15),
                   child: Text(
-                    'Mechanic job | Nugegoda | Nuwan',
+                    jobTitle,
                     style: TextStyle(
                         color: Theme.of(context).backgroundColor,
                         fontWeight: FontWeight.bold,
@@ -90,7 +190,7 @@ class _JoblistScreenState extends State<JoblistScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // bothParties(context, 'Nuwan Perera', Colors.amber),
-                      bothParties(context, 'Namal Rajapakse',
+                      bothParties(context, workerName,
                           Theme.of(context).backgroundColor),
                     ],
                   ),
@@ -109,7 +209,7 @@ class _JoblistScreenState extends State<JoblistScreen>
                     Padding(
                       padding: const EdgeInsets.only(left: 20.0, right: 20),
                       child: Text(
-                        'Date started: Jun 15',
+                        'Date started: ' + formatter.format(confirmedDateD),
                         style: TextStyle(
                             color: Theme.of(context).backgroundColor,
                             fontWeight: FontWeight.normal,
@@ -119,7 +219,7 @@ class _JoblistScreenState extends State<JoblistScreen>
                     Padding(
                       padding: const EdgeInsets.only(left: 20.0, right: 20),
                       child: Text(
-                        'Date completed: Jun 20',
+                        'Date completed: ' + formatter.format(estDateD),
                         style: TextStyle(
                             color: Theme.of(context).backgroundColor,
                             fontWeight: FontWeight.normal,
@@ -131,7 +231,7 @@ class _JoblistScreenState extends State<JoblistScreen>
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: Text(
-                    'Method: Contract basis',
+                    'Method: ' + revMethod,
                     style: TextStyle(
                         color: Theme.of(context).backgroundColor,
                         fontWeight: FontWeight.bold),
@@ -145,7 +245,19 @@ class _JoblistScreenState extends State<JoblistScreen>
     }
 
     Widget pendingjobCard(
-        BuildContext context, String status, Color progressColor) {
+        BuildContext context,
+        // String status,
+        // Color progressColor,
+        String jobTitle,
+        String workerName,
+        String estDate,
+        String estTotal,
+        String hourlyRate,
+        String revMethod,
+        String imgUrl,
+        String desc,
+        String jobId,
+        int index) {
       return GestureDetector(
         onTap: () => null,
         child: Padding(
@@ -165,7 +277,7 @@ class _JoblistScreenState extends State<JoblistScreen>
                   padding: const EdgeInsets.only(
                       left: 15.0, right: 15, top: 15, bottom: 15),
                   child: Text(
-                    'Mechanic job | Nugegoda | Nuwan',
+                    jobTitle,
                     style: TextStyle(
                         color: Theme.of(context).backgroundColor,
                         fontWeight: FontWeight.bold,
@@ -179,7 +291,7 @@ class _JoblistScreenState extends State<JoblistScreen>
                     children: [
                       // bothParties(context, 'Nuwan Perera', Colors.amber),
                       Text(
-                        'Namal Rajapakase sent you a quotation',
+                        workerName + ' sent you a quotation',
                         style: TextStyle(color: Colors.black, fontSize: 15),
                       )
                     ],
@@ -194,8 +306,22 @@ class _JoblistScreenState extends State<JoblistScreen>
                       color: Colors.black,
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.of(context)
-                          .pushNamed(quotationScreen.routeName),
+                      onTap: () {
+                        List data = [
+                          jobTitle,
+                          desc,
+                          estDate,
+                          estTotal,
+                          hourlyRate,
+                          imgUrl,
+                          revMethod,
+                          jobId
+                        ];
+
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => quotationScreen(),
+                            settings: RouteSettings(arguments: data)));
+                      },
                       child: Text(
                         'View quotation',
                         style: TextStyle(
@@ -222,12 +348,17 @@ class _JoblistScreenState extends State<JoblistScreen>
                           // color: Theme.of(context).buttonColor,
                           borderRadius: BorderRadius.circular(5),
                         ),
-                        child: Center(
-                          child: Text(
-                            'Confirm Job',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                        child: GestureDetector(
+                          onTap: () {
+                            confirmJob(jobId, index);
+                          },
+                          child: Center(
+                            child: Text(
+                              'Confirm Job',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
                       ),
@@ -353,9 +484,22 @@ class _JoblistScreenState extends State<JoblistScreen>
                         child: Column(
                           //scrollDirection: Axis.vertical,
                           children: [
-                            jobCard(context, 'Completed', Colors.green[600]),
-                            jobCard(context, 'Started', Colors.amber[900]),
-                            jobCard(context, 'On going', Colors.purple[600]),
+                            for (var i = 0; i < confirmedQs.length; i++)
+                              jobCard(
+                                context,
+                                'Started',
+                                Colors.amber[900],
+                                confirmedQs[i]['jobTitle'],
+                                confirmedQs[i]['workerName'],
+                                confirmedQs[i]['estimatedDate'],
+                                confirmedQs[i]['revenueMethod'],
+                                confirmedQs[i]['confirmedDate'],
+                                confirmedQs[i]['description'],
+                                confirmedQs[i]['estimatedTotal'].toString(),
+                                confirmedQs[i]['hourlyRate'].toString(),
+                                confirmedQs[i]['imgUrl'],
+                                confirmedQs[i]['jobId'],
+                              ),
                           ],
                         ),
                       ),
@@ -371,12 +515,19 @@ class _JoblistScreenState extends State<JoblistScreen>
                       child: Center(
                         child: Column(
                           children: [
-                            pendingjobCard(
-                                context, 'Completed', Colors.green[600]),
-                            pendingjobCard(
-                                context, 'Started', Colors.amber[900]),
-                            pendingjobCard(
-                                context, 'On going', Colors.purple[600]),
+                            for (var i = 0; i < ads.length; i++)
+                              pendingjobCard(
+                                  context,
+                                  ads[i]['jobTitle'],
+                                  ads[i]['workerName'],
+                                  ads[i]['estimatedDate'],
+                                  ads[i]['estimatedTotal'].toString(),
+                                  ads[i]['hourlyRate'].toString(),
+                                  ads[i]['revenueMethod'],
+                                  ads[i]['imgUrl'],
+                                  ads[i]['description'],
+                                  ads[i]['jobId'],
+                                  i),
                           ],
                         ),
                       ),
@@ -392,7 +543,7 @@ class _JoblistScreenState extends State<JoblistScreen>
                       child: Center(
                         child: Column(
                           children: [
-                            jobCard(context, 'On going', Colors.amber[900])
+                            // jobCard(context, 'On going', Colors.amber[900])
                           ],
                         ),
                       ),
@@ -409,7 +560,20 @@ class _JoblistScreenState extends State<JoblistScreen>
                       child: Center(
                         child: Column(
                           children: [
-                            jobCard(context, 'Completed', Colors.green[600])
+                            // jobCard(context, 'Completed', Colors.green[600])
+                            // for (var i = 0; i < ads.length; i++)
+                            //   jobCard(
+                            //       context,
+                            //       ads[i]['jobTitle'],
+                            //       ads[i]['workerName'],
+                            //       ads[i]['estimatedDate'],
+                            //       ads[i]['estimatedTotal'].toString(),
+                            //       ads[i]['hourlyRate'].toString(),
+                            //       ads[i]['revenueMethod'],
+                            //       ads[i]['imgUrl'],
+                            //       ads[i]['description'],
+                            //       ads[i]['jobId'],
+                            //       i),
                           ],
                         ),
                       ),
