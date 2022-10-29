@@ -168,7 +168,7 @@ class _PostjobScreenState extends State<PostjobScreen> {
         }
       }
       data = data + imageUrls;
-
+      print(data);
       await AuthService().postJobCustomer(data).then((val) {
         if (val.data['success']) {
           // Navigator.of(context).pushNamed(LoginScreen.routeName);
@@ -241,6 +241,32 @@ class _PostjobScreenState extends State<PostjobScreen> {
                             color: Colors.white,
                             fontSize: 15),
                         textAlign: TextAlign.start,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.view_agenda,
+                      color: Theme.of(context).buttonColor,
+                      size: 16,
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    InkWell(
+                      onTap: (() => Navigator.of(context)
+                          .pushNamed(PostedJobsScreen.routeName)),
+                      child: Text(
+                        'View posted jobs',
+                        style: TextStyle(
+                            color: Theme.of(context).buttonColor, fontSize: 16),
                       ),
                     ),
                   ],
@@ -545,33 +571,6 @@ class _PostjobScreenState extends State<PostjobScreen> {
                             }),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.view_agenda,
-                            color: Theme.of(context).buttonColor,
-                            size: 16,
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          InkWell(
-                            onTap: (() => Navigator.of(context)
-                                .pushNamed(PostedJobsScreen.routeName)),
-                            child: Text(
-                              'View posted jobs',
-                              style: TextStyle(
-                                  color: Theme.of(context).buttonColor,
-                                  fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
                   ],
                 ),
               )

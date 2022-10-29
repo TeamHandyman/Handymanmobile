@@ -20,10 +20,12 @@ class _HomescreenState extends State<Homescreen> {
 
   @override
   List<dynamic> ads = [];
+  List<dynamic> portfolios = [];
   void getWorkerAds() async {
     await AuthService().getWorkerAds().then((val) {
       ads = val.data["u"];
     });
+
     setState(() {});
   }
 
@@ -37,16 +39,17 @@ class _HomescreenState extends State<Homescreen> {
     final width = MediaQuery.of(context).size.width;
 
     Widget advertisement(
-        BuildContext context,
-        String name,
-        String proPic,
-        String adImg,
-        String desc,
-        String district,
-        String oneSignalId,
-        String workerEmail,
-        String jobTitle,
-        String jobId) {
+      BuildContext context,
+      String name,
+      String proPic,
+      String adImg,
+      String desc,
+      String district,
+      String oneSignalId,
+      String workerEmail,
+      String jobTitle,
+      String jobId,
+    ) {
       return Column(
         children: [
           Padding(
@@ -251,24 +254,24 @@ class _HomescreenState extends State<Homescreen> {
               indent: 15,
               endIndent: 15,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Filter',
-                    style: TextStyle(
-                        color: Theme.of(context).shadowColor, fontSize: 15),
-                  ),
-                ),
-                Icon(
-                  Icons.account_tree_outlined,
-                  color: Theme.of(context).shadowColor,
-                  size: 15,
-                )
-              ],
-            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.start,
+            //   children: [
+            //     Padding(
+            //       padding: const EdgeInsets.symmetric(horizontal: 20),
+            //       child: Text(
+            //         'Filter',
+            //         style: TextStyle(
+            //             color: Theme.of(context).shadowColor, fontSize: 15),
+            //       ),
+            //     ),
+            //     Icon(
+            //       Icons.account_tree_outlined,
+            //       color: Theme.of(context).shadowColor,
+            //       size: 15,
+            //     )
+            //   ],
+            // ),
             for (var i in ads)
               advertisement(
                   context,

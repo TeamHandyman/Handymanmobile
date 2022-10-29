@@ -263,7 +263,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.chat_bubble), onPressed: () {}),
+          // IconButton(icon: Icon(Icons.chat_bubble), onPressed: () {}),
         ],
       ),
       backgroundColor: Theme.of(context).backgroundColor,

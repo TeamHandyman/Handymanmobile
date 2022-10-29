@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/savedworkers.dart';
 import 'package:handyman/Onboarding/login.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:progress_indicator_button/progress_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,7 +14,23 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen>
     with TickerProviderStateMixin {
+  var name, district, proPic;
   @override
+  void getDetails() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // var token = prefs.getString('token');
+    // Map<String, dynamic> payload = Jwt.parseJwt(token);
+    name = "deelaka";
+    district = "rathnapura";
+    proPic =
+        "https://res.cloudinary.com/projecthandyman/image/upload/v1666335115/profile%20images/abcd%40gmail.com.jpg";
+  }
+
+  void initState() {
+    super.initState();
+    getDetails();
+  }
+
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
@@ -91,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 Center(
                   child: CircleAvatar(
                     backgroundColor: Colors.grey,
-                    backgroundImage: AssetImage('assets/images/profile1.jpg'),
+                    backgroundImage: NetworkImage(proPic),
                     radius: 60,
                   ),
                 ),
@@ -99,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Center(
                     child: Text(
-                      'Hey I am Kasuni Silva\n from Dehiwala',
+                      'Hey I am ' + name + '\n from ' + district,
                       style: TextStyle(color: Colors.white, fontSize: 16),
                       textAlign: TextAlign.center,
                     ),
@@ -109,48 +126,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Column(
                     children: [
-                      Text(
-                        'Rating',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(vertical: 35),
+                      //   child: Center(
+                      //       child: Text(
+                      //     'Member since 2022',
+                      //     style: TextStyle(color: Colors.white, fontSize: 16),
+                      //   )),
+                      // ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: Theme.of(context).buttonColor,
-                          ),
-                          Icon(
-                            Icons.star,
-                            color: Theme.of(context).buttonColor,
-                          ),
-                          Icon(
-                            Icons.star,
-                            color: Theme.of(context).buttonColor,
-                          ),
-                          Icon(
-                            Icons.star,
-                            color: Theme.of(context).buttonColor,
-                          ),
-                          Icon(
-                            Icons.star,
-                            color: Theme.of(context).shadowColor,
-                          )
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 35),
-                        child: Center(
-                            child: Text(
-                          'Member since 2022',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        )),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           profileButtons(context, 'Edit', Icons.edit),
@@ -161,6 +146,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                           profileButtons(
                               context, 'Saved', Icons.bookmark_border),
                         ],
+                      ),
+                      SizedBox(
+                        height: 100,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(

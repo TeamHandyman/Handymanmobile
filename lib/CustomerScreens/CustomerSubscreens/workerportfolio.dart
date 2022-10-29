@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:handyman/CustomerScreens/CustomerSubscreens/chatscreen.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:progress_indicator_button/progress_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,12 +18,18 @@ bool isRequested;
 
 class _WorkerPortfolioState extends State<WorkerPortfolio> {
   var _saved = false;
+  List<String> _image = [];
+  var _isSelected = false;
+  var selectedImg = -2;
+  List<String> _services = [];
+
   @override
   Widget build(BuildContext context) {
     List data = ModalRoute.of(context).settings.arguments as List;
 
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    var portfolio;
     Future<void> _getQuotationState() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('token');
@@ -31,6 +38,14 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
       await AuthService().getQuotationState(data[4], email).then((val) {
         isRequested = val.data["success"];
       });
+
+      await AuthService().getWorkerPortfolios(data[4]).then((val) {
+        portfolio = val.data['u'];
+      });
+      // portfolio[0]['urls'][0];
+      print(portfolio[0]['urls'][1]);
+      print('Lenght');
+      print(portfolio[0]['urls'].length);
     }
 
     // Future<void> _getJobRequestState() async {
@@ -76,6 +91,156 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
               fontSize: 16.0);
         }
       });
+    }
+
+    Widget coverImage(BuildContext context, int i, bool isSelected) {
+      return Padding(
+        padding:
+            const EdgeInsets.only(left: 15.0, right: 15, top: 15, bottom: 3),
+        child: Container(
+          height: height * 0.4,
+          width: width,
+          decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: !portfolio[0]['urls'].isEmpty
+              ? Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    image: DecorationImage(
+                      image: !isSelected
+                          ? NetworkImage(portfolio[0]['urls'][0])
+                          : NetworkImage(portfolio[0]['urls'][i]),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              : Container(
+                  height: height * 0.4,
+                  width: width,
+                  color: Colors.grey[400],
+                  child: Center(
+                    child: Icon(
+                      Icons.image_not_supported,
+                      color: Colors.black45,
+                      size: 100,
+                    ),
+                  ),
+                ),
+        ),
+      );
+    }
+
+    Widget imageTile(BuildContext context, String url) {
+      return Padding(
+        padding: const EdgeInsets.all(3.0),
+        child: Container(
+          height: 80,
+          width: 80,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: Theme.of(context).shadowColor,
+          ),
+          child: Container(
+              decoration: const BoxDecoration(
+                  // image: DecorationImage(
+                  //   image: AssetImage('assets/images/portfolio2.jpeg'),
+                  //   fit: BoxFit.fill,
+                  // ),
+                  ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  image: DecorationImage(
+                    image: NetworkImage(url),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )),
+        ),
+      );
+    }
+
+    Widget imageSlider(BuildContext context) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+                height: 100,
+                width: width * 0.95,
+                // decoration: BoxDecoration(
+                //   border: Border.all(color: Colors.white),
+                //   borderRadius: BorderRadius.circular(8),
+                // ),
+                child: ListView.builder(
+                  itemCount: portfolio[0]['urls'].length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (ctx, i) => GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isSelected = true;
+                        selectedImg = i;
+                      });
+                    },
+                    child: Container(
+                      height: 120,
+                      width: 90,
+                      margin: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        image: DecorationImage(
+                          image: NetworkImage(portfolio[0]['urls'][i]),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                )),
+          ],
+        ),
+      );
+    }
+
+    Widget otherServices(BuildContext context) {
+      return Padding(
+          padding: const EdgeInsets.only(left: 15.0, right: 15),
+          child: Container(
+            height: 40,
+            width: width * 0.95,
+            // decoration: BoxDecoration(
+            //   border: Border.all(color: Colors.white),
+            //   borderRadius: BorderRadius.circular(8),
+            // ),
+            child: ListView.builder(
+              itemCount: _services.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (ctx, i) => !_services.isEmpty
+                  ? Container(
+                      height: 30,
+                      width: 180,
+                      margin: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: Color.fromRGBO(255, 255, 255, 0.6),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _services[i],
+                          style: TextStyle(color: Colors.black, fontSize: 15),
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: Text(
+                        '',
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                    ),
+            ),
+          ));
     }
 
     Widget requestPop(BuildContext context) {
@@ -195,159 +360,9 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                             )),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 15.0, right: 15, top: 15, bottom: 3),
-                      child: Container(
-                        height: height * 0.4,
-                        width: width,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).shadowColor,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                              image:
-                                  AssetImage('assets/images/portfolio1.jpeg'),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15.0, right: 15),
-                      child: Container(
-                        height: 80,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5)),
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Theme.of(context).shadowColor,
-                                ),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/portfolio2.jpeg'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Theme.of(context).shadowColor,
-                                ),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                        image: AssetImage(
-                                            'assets/images/portfolio3.jpeg'),
-                                        fit: BoxFit.fill),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Theme.of(context).shadowColor,
-                                ),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                        image: AssetImage(
-                                            'assets/images/portfolio3.jpeg'),
-                                        fit: BoxFit.fill),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Theme.of(context).shadowColor,
-                                ),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/portfolio1.jpeg'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Theme.of(context).shadowColor,
-                                ),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/portfolio2.jpeg'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Theme.of(context).shadowColor,
-                                ),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/portfolio1.jpeg'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    coverImage(context, selectedImg, _isSelected),
+                    Divider(color: Colors.white54, indent: 25, endIndent: 25),
+                    imageSlider(context),
                     Container(
                       width: width,
                       height: 130,
@@ -360,7 +375,8 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                               'About the advertisment',
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
                             ),
                             Text(
                               'This is a dummy description of the advertisement. You can provide all the information about the service you provided, conditions, requirements and everything',
@@ -382,92 +398,13 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                             'Services Provided',
                             style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20),
                           ),
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15.0, right: 15),
-                      child: Container(
-                        height: 160,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(3),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 130,
-                                    width: 180,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).shadowColor,
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/services1.jpeg'),
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 15.0, right: 15, top: 5),
-                                    child: Text(
-                                      'Plumbing',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 16),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(3),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 130,
-                                    width: 180,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).shadowColor,
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/services2.jpeg'),
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 15.0, right: 15, top: 5),
-                                    child: Text(
-                                      'Carpentary',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 16),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    // otherServices(context),
                     Padding(
                       padding: const EdgeInsets.only(
                           left: 15.0, right: 15, top: 3, bottom: 3),
@@ -541,7 +478,7 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                                     ),
                                   ),
                                   Text(
-                                    'Jobs Completed: ' + data[7].toString(),
+                                    "asd",
                                     style: TextStyle(
                                       color: Colors.white,
                                     ),
@@ -599,17 +536,23 @@ class _WorkerPortfolioState extends State<WorkerPortfolio> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 5.0),
-                            child: Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).buttonColor,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.chat,
-                                  color: Theme.of(context).backgroundColor,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context)
+                                    .pushNamed(ChatScreen.routeName);
+                              },
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).buttonColor,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.chat,
+                                    color: Theme.of(context).backgroundColor,
+                                  ),
                                 ),
                               ),
                             ),
