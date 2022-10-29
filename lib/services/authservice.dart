@@ -234,6 +234,21 @@ class AuthService {
     }
   }
 
+  getWorkerPortfolios(email) async {
+    try {
+      return await dio.get(
+          'https://projecthandyman.herokuapp.com/getWorkerPortfolios?email=$email');
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
   getRecievedQuotations(email) async {
     try {
       return await dio.get(
@@ -248,6 +263,7 @@ class AuthService {
           fontSize: 16.0);
     }
   }
+
   getCompletedQuotations(email) async {
     try {
       return await dio.get(
@@ -341,6 +357,25 @@ class AuthService {
           'https://projecthandyman.herokuapp.com/markJobAsComplete',
           data: {
             "jobId": jobId,
+          },
+          options: Options(contentType: Headers.formUrlEncodedContentType));
+    } on DioError catch (e) {
+      Fluttertoast.showToast(
+          msg: e.response.data['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  increaseJobCount(email) async {
+    try {
+      return await dio.post(
+          'https://projecthandyman.herokuapp.com/increaseJobCount',
+          data: {
+            "email": email,
           },
           options: Options(contentType: Headers.formUrlEncodedContentType));
     } on DioError catch (e) {

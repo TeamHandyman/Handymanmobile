@@ -140,25 +140,30 @@ class _JoblistScreenState extends State<JoblistScreen>
         String estTotal,
         String hourlyRate,
         String imgUrl,
-        String jobId) {
+        String jobId,
+        String jobStatus,
+        String workerEmail) {
       DateTime estDateD = DateTime.parse(estDate);
       DateTime confirmedDateD = DateTime.parse(confirmedDate);
       return GestureDetector(
         onTap: () {
-          List data = [
-            jobTitle,
-            confirmedDate,
-            estDate,
-            revMethod,
-            desc,
-            estTotal,
-            hourlyRate,
-            imgUrl,
-            jobId
-          ];
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ConfirmedJobsScreen(),
-              settings: RouteSettings(arguments: data)));
+          if (jobStatus != "completed") {
+            List data = [
+              jobTitle,
+              confirmedDate,
+              estDate,
+              revMethod,
+              desc,
+              estTotal,
+              hourlyRate,
+              imgUrl,
+              jobId,
+              workerEmail
+            ];
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ConfirmedJobsScreen(),
+                settings: RouteSettings(arguments: data)));
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(3.0),
@@ -499,6 +504,44 @@ class _JoblistScreenState extends State<JoblistScreen>
                                 confirmedQs[i]['hourlyRate'].toString(),
                                 confirmedQs[i]['imgUrl'],
                                 confirmedQs[i]['jobId'],
+                                confirmedQs[i]['status'],
+                                confirmedQs[i]['worker'],
+                              ),
+                            for (var i = 0; i < completedQs.length; i++)
+                              jobCard(
+                                context,
+                                'Completed',
+                                Colors.green,
+                                completedQs[i]['jobTitle'],
+                                completedQs[i]['workerName'],
+                                completedQs[i]['estimatedDate'],
+                                completedQs[i]['revenueMethod'],
+                                completedQs[i]['confirmedDate'],
+                                completedQs[i]['description'],
+                                completedQs[i]['estimatedTotal'].toString(),
+                                completedQs[i]['hourlyRate'].toString(),
+                                completedQs[i]['imgUrl'],
+                                completedQs[i]['jobId'],
+                                completedQs[i]['status'],
+                                completedQs[i]['worker'],
+                              ),
+                            for (var i = 0; i < ads.length; i++)
+                              jobCard(
+                                context,
+                                'Started',
+                                Colors.amber[900],
+                                ads[i]['jobTitle'],
+                                ads[i]['workerName'],
+                                ads[i]['estimatedDate'],
+                                ads[i]['revenueMethod'],
+                                ads[i]['confirmedDate'],
+                                ads[i]['description'],
+                                ads[i]['estimatedTotal'].toString(),
+                                ads[i]['hourlyRate'].toString(),
+                                ads[i]['imgUrl'],
+                                ads[i]['jobId'],
+                                ads[i]['status'],
+                                ads[i]['worker'],
                               ),
                           ],
                         ),
@@ -561,19 +604,24 @@ class _JoblistScreenState extends State<JoblistScreen>
                         child: Column(
                           children: [
                             // jobCard(context, 'Completed', Colors.green[600])
-                            // for (var i = 0; i < ads.length; i++)
-                            //   jobCard(
-                            //       context,
-                            //       ads[i]['jobTitle'],
-                            //       ads[i]['workerName'],
-                            //       ads[i]['estimatedDate'],
-                            //       ads[i]['estimatedTotal'].toString(),
-                            //       ads[i]['hourlyRate'].toString(),
-                            //       ads[i]['revenueMethod'],
-                            //       ads[i]['imgUrl'],
-                            //       ads[i]['description'],
-                            //       ads[i]['jobId'],
-                            //       i),
+                            for (var i = 0; i < completedQs.length; i++)
+                              jobCard(
+                                context,
+                                'Completed',
+                                Colors.green,
+                                completedQs[i]['jobTitle'],
+                                completedQs[i]['workerName'],
+                                completedQs[i]['estimatedDate'],
+                                completedQs[i]['revenueMethod'],
+                                completedQs[i]['confirmedDate'],
+                                completedQs[i]['description'],
+                                completedQs[i]['estimatedTotal'].toString(),
+                                completedQs[i]['hourlyRate'].toString(),
+                                completedQs[i]['imgUrl'],
+                                completedQs[i]['jobId'],
+                                completedQs[i]['status'],
+                                completedQs[i]['worker'],
+                              ),
                           ],
                         ),
                       ),

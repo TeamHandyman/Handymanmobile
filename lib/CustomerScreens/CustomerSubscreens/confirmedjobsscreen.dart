@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:handyman/CustomerScreens/CustomerSubscreens/quotation.dart';
 import 'package:handyman/CustomerScreens/joblist.dart';
+import 'package:handyman/CustomerScreens/navigation.dart';
 import 'package:progress_indicator_button/progress_button.dart';
 import 'package:intl/intl.dart';
 
@@ -29,8 +30,9 @@ class _ConfirmedJobsScreenState extends State<ConfirmedJobsScreen> {
             backgroundColor: Theme.of(context).buttonColor,
             textColor: Colors.black,
             fontSize: 16.0);
-        Navigator.pushNamed(context, JoblistScreen.routeName);
+        Navigator.pushNamed(context, Navigationscreen.routeName);
       });
+      await AuthService().increaseJobCount(data[9]).then((val) {});
       await controller.reset();
     }
 
